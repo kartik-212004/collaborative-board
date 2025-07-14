@@ -9,9 +9,13 @@
     "build": "tsc -b "
   },
   "dependencies": {
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "ws": "^8.18.3"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
+  }
 }
