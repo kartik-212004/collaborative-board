@@ -9,6 +9,10 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },
 });
 
 export const User = mongoose.model("User", schema);

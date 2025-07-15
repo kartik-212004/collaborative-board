@@ -1,13 +1,22 @@
-import { User } from "../mongodb/user.mongoose";
+import { UserType } from "@repo/zod/type";
 import express, { Router } from "express";
-
+import { User } from "@repo/database/db";
 const router: Router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
-    if (!email || !password) {
+    const validationResult = UserType.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input data",
+        errors: validationResult.error.issues,
+      });
+    }
+
+    if (!email || !password || name) {
       return res.status(400).json({
         success: false,
         message: "Email and password are required",
@@ -25,6 +34,7 @@ router.post("/", async (req, res) => {
     const newUser = await User.create({
       email: email,
       password: password,
+      name: name,
     });
 
     res.status(201).json({
