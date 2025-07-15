@@ -111,6 +111,18 @@ importers:
       "@repo/typescript-config":
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      "@types/express":
+        specifier: ^5.0.3
+        version: 5.0.3
+      "@types/jsonwebtoken":
+        specifier: ^9.0.10
+        version: 9.0.10
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       ws:
         specifier: ^8.18.3
         version: 8.18.3
@@ -2937,13 +2949,6 @@ packages:
         integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==,
       }
 
-  semver@7.7.1:
-    resolution:
-      {
-        integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==,
-      }
-    engines: { node: ">=10" }
-
   semver@7.7.2:
     resolution:
       {
@@ -5247,9 +5252,6 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.7.1:
-    optional: true
-
   semver@7.7.2: {}
 
   send@1.2.0:
@@ -5305,7 +5307,7 @@ snapshots:
     dependencies:
       color: 4.2.3
       detect-libc: 2.0.3
-      semver: 7.7.1
+      semver: 7.7.2
     optionalDependencies:
       "@img/sharp-darwin-arm64": 0.34.1
       "@img/sharp-darwin-x64": 0.34.1
