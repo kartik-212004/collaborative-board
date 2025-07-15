@@ -1,7 +1,9 @@
 import { signinRouter, signupRouter } from "./routes";
 import mongoose, { mongo } from "mongoose";
 import express from "express";
+import dotenv from "dotenv";
 import cors from "cors";
+dotenv.config();
 
 const app = express();
 

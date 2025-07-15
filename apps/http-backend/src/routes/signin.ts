@@ -1,5 +1,5 @@
+import { User } from "../mongodb/user.mongoose";
 import express, { Router } from "express";
-import { User } from "../db.mongoose";
 import { sign } from "jsonwebtoken";
 
 const router: Router = express.Router();
@@ -27,10 +27,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const token = sign(
-      { email: user.email },
-      process.env.SECRET_KEY || "fallback-secret-key",
-    );
+    const token = sign({ email: user.email }, process.env.SECRET_KEY!);
 
     return res.status(200).json({
       success: true,
