@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const schema = new mongoose.Schema({
   email: {
     type: String,
-    require: true,
+    required: true,
   },
   password: {
     type: String,
-    require: true,
+    required: true,
   },
 });
 

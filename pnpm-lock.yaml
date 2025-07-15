@@ -37,6 +37,9 @@ importers:
 
   apps/http-backend:
     dependencies:
+      "@repo/database":
+        specifier: workspace:*
+        version: link:../../packages/database
       "@repo/typescript-config":
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -130,6 +133,19 @@ importers:
       "@types/ws":
         specifier: ^8.18.1
         version: 8.18.1
+
+  packages/database:
+    dependencies:
+      mongoose:
+        specifier: ^8.16.3
+        version: 8.16.3
+    devDependencies:
+      "@repo/typescript-config":
+        specifier: workspace:*
+        version: link:../typescript-config
+      "@types/mongoose":
+        specifier: ^5.11.97
+        version: 5.11.97
 
   packages/eslint-config:
     devDependencies:

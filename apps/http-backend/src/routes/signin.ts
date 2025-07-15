@@ -1,5 +1,5 @@
-import { User } from "../mongodb/user.mongoose";
 import express, { Router } from "express";
+import { User } from "@repo/database/db";
 import { sign } from "jsonwebtoken";
 
 const router: Router = express.Router();
