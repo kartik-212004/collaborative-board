@@ -1,5 +1,5 @@
-import { signinRouter, signupRouter } from "./routes";
-import mongoose, { mongo } from "mongoose";
+import signupRouter from "./routes/signup";
+import signinRouter from "./routes/signin";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -22,8 +22,6 @@ app.get("/health", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
-mongoose.connect("mongo://27017");
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

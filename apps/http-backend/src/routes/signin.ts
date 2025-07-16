@@ -1,5 +1,5 @@
+import { prisma } from "@repo/database/client";
 import express, { Router } from "express";
-import { User } from "@repo/database/db";
 import { sign } from "jsonwebtoken";
 
 const router: Router = express.Router();
@@ -15,9 +15,11 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const user = await User.findOne({
-      email: email,
-      password: password,
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+        password: password,
+      },
     });
 
     if (!user) {
