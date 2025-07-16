@@ -1,1 +1,1 @@
-{"root":["./req.d.ts","./src/index.ts","./types/env.d.ts","./types/express.d.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./types/express.d.ts"],"version":"5.8.3"}

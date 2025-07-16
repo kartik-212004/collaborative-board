@@ -1,22 +1,24 @@
 {
   "name": "@repo/env",
   "version": "1.0.0",
-  "description": "Shared environment configuration for the monorepo",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.0"
-  },
-  "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
-    "typescript": "5.8.3"
+    "build": "tsc -b"
   },
   "exports": {
     ".": "./dist/index.js"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@repo/zod": "workspace:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "path": "^0.12.7",
+    "zod": "^4.0.5"
   }
 }

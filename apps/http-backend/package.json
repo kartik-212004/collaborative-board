@@ -2,11 +2,12 @@
   "name": "http-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "tsc -b && node dist/index.js",
-    "dev": "tsc -b && node dist/index.js",
-    "build": "tsc -b"
+    "prebuild": "pnpm --filter @repo/database... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
+    "build": "pnpm prebuild && tsc -b",
+    "start": "pnpm build && node dist/index.js",
+    "dev": "pnpm build && node dist/index.js"
   },
   "dependencies": {
     "@repo/typescript-config": "workspace:*",
