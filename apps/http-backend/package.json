@@ -12,6 +12,7 @@
     "@repo/typescript-config": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/zod": "workspace:*",
+    "@repo/env": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",

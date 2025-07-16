@@ -1,12 +1,11 @@
-import dotenv from "dotenv";
+import { WEBSOCKET_PORT, SECRET_KEY } from "@repo/env";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
 
 const rooms: Record<string, WebSocket[]> = {};
 const wss = new WebSocketServer({
-  port: parseInt(process.env.WEBSOCKET_PORT!),
+  port: WEBSOCKET_PORT,
 });
-dotenv.config();
 
 wss.on("connection", (ws: WebSocket, request) => {
   const url = request.url;
@@ -15,9 +14,10 @@ wss.on("connection", (ws: WebSocket, request) => {
   const queryParams = new URLSearchParams(url.split("?")[1]);
   const token = queryParams.get("token");
   if (!token) return;
-  const decoded = jwt.verify(token, process.env.SECRET_KEY!);
+  const decoded = jwt.verify(token, SECRET_KEY);
   if (!decoded) {
-    wss.close;
+    ws.close();
+    return;
   }
 
   console.log("Client connected");
@@ -28,7 +28,10 @@ wss.on("connection", (ws: WebSocket, request) => {
 
     ws.send("hello " + message);
   });
+
   ws.on("close", () => {
     console.log("Client disconnected");
   });
 });
+
+console.log(`WebSocket server running on port ${WEBSOCKET_PORT}`);

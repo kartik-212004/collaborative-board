@@ -1,0 +1,22 @@
+{
+  "name": "@repo/env",
+  "version": "1.0.0",
+  "description": "Shared environment configuration for the monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "typescript": "5.8.3"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  }
+}

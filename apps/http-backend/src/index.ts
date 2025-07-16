@@ -1,11 +1,9 @@
+import { HTTP_PORT } from "@repo/env";
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 
 import signinRouter from "./routes/signin";
 import signupRouter from "./routes/signup";
-
-dotenv.config();
 
 const app = express();
 
@@ -23,8 +21,6 @@ app.get("/health", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(HTTP_PORT, () => {
+  console.log(`HTTP Server is running on port ${HTTP_PORT}`);
 });

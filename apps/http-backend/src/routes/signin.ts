@@ -1,4 +1,5 @@
 import { prisma } from "@repo/database/client";
+import { SECRET_KEY } from "@repo/env";
 import express, { Router } from "express";
 import { sign } from "jsonwebtoken";
 
@@ -29,7 +30,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const token = sign({ email: user.email }, process.env.SECRET_KEY!);
+    const token = sign({ email: user.email }, SECRET_KEY);
 
     return res.status(200).json({
       success: true,
