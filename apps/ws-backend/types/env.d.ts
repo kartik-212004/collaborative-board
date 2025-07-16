@@ -2,10 +2,10 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       SECRET_KEY: string;
+      WEBSOCKET_PORT: string;
       DATABASE_URL: string;
-      PORT: number;
-      NODE_ENV: "development" | "production" | "test";
-      WEBSOCKET_PORT: number;
+      HTTP_PORT: string;
+      NODE_ENV: string;
     }
   }
 }

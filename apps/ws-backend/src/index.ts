@@ -1,7 +1,12 @@
-import { WebSocket, WebSocketServer } from "ws";
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { WebSocket, WebSocketServer } from "ws";
+
 const rooms: Record<string, WebSocket[]> = {};
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({
+  port: parseInt(process.env.WEBSOCKET_PORT!),
+});
+dotenv.config();
 
 wss.on("connection", (ws: WebSocket, request) => {
   const url = request.url;

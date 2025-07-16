@@ -1,8 +1,10 @@
-import signupRouter from "./routes/signup";
-import signinRouter from "./routes/signin";
-import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
+
+import signinRouter from "./routes/signin";
+import signupRouter from "./routes/signup";
+
 dotenv.config();
 
 const app = express();

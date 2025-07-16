@@ -1,6 +1,7 @@
 import { prisma } from "@repo/database/client";
 import { UserType } from "@repo/zod/type";
 import express, { Router } from "express";
+
 const router: Router = express.Router();
 
 router.post("/", async (req, res) => {
