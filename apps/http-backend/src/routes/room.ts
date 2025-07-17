@@ -7,6 +7,7 @@ const router: Router = express.Router();
 
 router.post("/", middleware, async (req, res) => {
   const { slug }: { slug: string } = req.body;
+
   const user = req.user as { id: string };
   const adminId = user?.id;
 

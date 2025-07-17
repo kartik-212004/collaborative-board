@@ -12,6 +12,7 @@ export async function middleware(req: Request, res: Response, next: NextFunction
     const decoded = jwt.verify(token, process.env.SECRET_KEY!) as JwtPayload;
 
     req.user = decoded;
+    next();
   } catch (error: any) {
     return res.status(403).json({
       message: "Invalid or expired token",

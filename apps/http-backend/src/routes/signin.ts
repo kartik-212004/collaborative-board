@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const token = sign({ email: user.email }, SECRET_KEY);
+    const token = sign({ email: user.email, id: user.id, name: user.name }, SECRET_KEY);
 
     return res.status(200).json({
       success: true,
