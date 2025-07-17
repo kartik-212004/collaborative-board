@@ -7,6 +7,13 @@ const router: Router = express.Router();
 router.post("/", async (req, res) => {
   try {
     const { email, password, name, photo } = req.body;
+    console.log(email, password, name, photo);
+    if (!email || !password || !name || !photo) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
 
     const validationResult = UserType.safeParse(req.body);
     if (!validationResult.success) {
@@ -14,13 +21,6 @@ router.post("/", async (req, res) => {
         success: false,
         message: "Invalid input data",
         errors: validationResult.error.issues,
-      });
-    }
-
-    if (!email || !password || name || photo) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
       });
     }
 
