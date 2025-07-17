@@ -8,19 +8,10 @@ router.post("/", async (req, res) => {
   try {
     const { email, password, name, photo } = req.body;
     console.log(email, password, name, photo);
-    if (!email || !password || !name || !photo) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
         message: "Email and password are required",
-      });
-    }
-
-    const validationResult = UserType.safeParse(req.body);
-    if (!validationResult.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid input data",
-        errors: validationResult.error.issues,
       });
     }
 
@@ -40,10 +31,10 @@ router.post("/", async (req, res) => {
       data: {
         email: email,
         password: password,
-        name: name,
-        photo: photo
-          ? photo
-          : "https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0=",
+        name: name || "Anonymous User",
+        photo:
+          photo ||
+          "https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0=",
       },
     });
 
