@@ -1,3 +1,4 @@
+import { prisma } from "@repo/database/client";
 import { WEBSOCKET_PORT, SECRET_KEY } from "@repo/env";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
@@ -37,7 +38,7 @@ wss.on("connection", (ws: WebSocket, request) => {
 
   console.log("Client connected");
 
-  ws.on("message", (data) => {
+  ws.on("message", async (data) => {
     try {
       const message: MessageType = JSON.parse(data.toString());
       console.log("Received:", message);
@@ -45,52 +46,47 @@ wss.on("connection", (ws: WebSocket, request) => {
       const { roomId, name, payload, type } = message;
 
       switch (type) {
-        case "create":
-          if (rooms[roomId]) {
-            return ws.send(
-              JSON.stringify({
-                message: "Room already exists",
-              })
-            );
-          }
-
-          rooms[roomId] = [ws];
-          rooms[roomId].forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(
-                JSON.stringify({
-                  name,
-                  roomId,
-                  payload: { message: `${name} created the room` },
-                  type,
-                })
-              );
-            }
-          });
-          break;
-
         case "join":
-          if (!rooms[roomId]) {
-            return ws.send(
-              JSON.stringify({
-                message: "Room does not exist",
-              })
-            );
-          }
+          try {
+            const roomExists = await prisma.room.findUnique({
+              where: { slug: roomId },
+            });
 
-          rooms[roomId].push(ws);
-          rooms[roomId].forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send(
+            if (!roomExists) {
+              return ws.send(
                 JSON.stringify({
-                  name,
-                  roomId,
-                  payload: { message: `${name} joined the room` },
-                  type,
+                  type: "error",
+                  message: "Room does not exist in database",
                 })
               );
             }
-          });
+
+            if (!rooms[roomId]) {
+              rooms[roomId] = [];
+            }
+
+            rooms[roomId].push(ws);
+            rooms[roomId].forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(
+                  JSON.stringify({
+                    name,
+                    roomId,
+                    payload: { message: `${name} joined the room` },
+                    type: "user_joined",
+                  })
+                );
+              }
+            });
+          } catch (error) {
+            console.log("Database error:", error);
+            return ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "Failed to check room existence",
+              })
+            );
+          }
           break;
 
         case "chat":

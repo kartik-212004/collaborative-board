@@ -2,6 +2,7 @@ import { HTTP_PORT } from "@repo/env";
 import cors from "cors";
 import express from "express";
 
+import roomRouter from "./routes/room";
 import signinRouter from "./routes/signin";
 import signupRouter from "./routes/signup";
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use("/signup", signupRouter);
 app.use("/signin", signinRouter);
+app.use("/room", roomRouter);
 
 app.get("/health", (req, res) => {
   res.status(200).json({
