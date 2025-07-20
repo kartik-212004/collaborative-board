@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ArrowRight, Users, Zap, Share2 } from "lucide-react";
 
+import AuthButton from "@/components/AuthButton";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
@@ -25,14 +26,12 @@ export default function LandingPage() {
             team in a clean, browser-based whiteboard experience.
           </p>
           <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="bg-white px-8 text-lg text-black transition-colors hover:bg-gray-100">
-                Start Drawing Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            <AuthButton
+              size="lg"
+              className="bg-white px-8 text-lg text-black transition-colors hover:bg-gray-100">
+              Start Drawing Now
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </AuthButton>
             <Link href="#demo">
               <Button
                 size="lg"
@@ -97,13 +96,11 @@ export default function LandingPage() {
               Team Cursors
             </Badge>
           </div>
-          <Link href="/signup">
-            <Button
-              size="lg"
-              className="bg-black px-8 text-lg text-white transition-colors hover:bg-gray-800">
-              Try It Free
-            </Button>
-          </Link>
+          <AuthButton
+            size="lg"
+            className="bg-black px-8 text-lg text-white transition-colors hover:bg-gray-800">
+            Try It Free
+          </AuthButton>
         </div>
       </section>
 
@@ -113,14 +110,12 @@ export default function LandingPage() {
           <p className="mb-8 text-xl text-white/80">
             Join thousands of teams already using WhiteBoard to bring their ideas to life.
           </p>
-          <Link href="/signup">
-            <Button
-              size="lg"
-              className="bg-white px-8 text-lg text-black transition-colors hover:bg-gray-100">
-              Get Started for Free
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <AuthButton
+            size="lg"
+            className="bg-white px-8 text-lg text-black transition-colors hover:bg-gray-100">
+            Get Started for Free
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </AuthButton>
         </div>
       </section>
       <Footer />
