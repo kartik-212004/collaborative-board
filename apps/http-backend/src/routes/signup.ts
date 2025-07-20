@@ -7,7 +7,6 @@ const router: Router = express.Router();
 router.post("/", async (req, res) => {
   try {
     const { email, password, name, photo } = req.body;
-    console.log(email, password, name, photo);
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -21,7 +20,7 @@ router.post("/", async (req, res) => {
       },
     });
     if (existingUser) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: "User with this email already exists",
       });

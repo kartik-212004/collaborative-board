@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
 
-import { Pencil, Upload, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import { Pencil, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,11 +29,61 @@ export default function SignUpPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    setError("");
+    setSuccess("");
+
+    if (!formData.email || !formData.password || !formData.name) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_HTTP_BACKEND_URL}/signup`, {
+        name: formData.name.trim(),
+        password: formData.password,
+        photo: formData.photo.trim() || undefined,
+        email: formData.email.trim().toLowerCase(),
+      });
+
+      if (response.data.success) {
+        setSuccess("Account created successfully! Redirecting to sign in...");
+        setTimeout(() => {
+          router.push("/signin");
+        }, 1500);
+      } else {
+        setError(response.data.message || "Failed to create account");
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+
+      if (error.response?.status === 400) {
+        setError(error.response.data.message || "Invalid input. Please check your details.");
+      } else if (error.response?.status === 409) {
+        setError("An account with this email already exists.");
+      } else if (error.response?.status >= 500) {
+        setError("Server error. Please try again later.");
+      } else if (error.code === "NETWORK_ERROR" || !error.response) {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -50,6 +106,18 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-4 rounded-md border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-400">
+                {success}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-white">
@@ -92,11 +160,12 @@ export default function SignUpPage() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
+                    placeholder="Create a strong password (min. 6 characters)"
                     value={formData.password}
                     onChange={handleInputChange}
                     className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white"
                     required
+                    minLength={6}
                   />
                   <Button
                     type="button"
@@ -111,6 +180,9 @@ export default function SignUpPage() {
                     )}
                   </Button>
                 </div>
+                {formData.password && formData.password.length < 6 && (
+                  <p className="text-xs text-red-400">Password must be at least 6 characters long</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -135,13 +207,20 @@ export default function SignUpPage() {
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
+                      onLoad={(e) => {
+                        e.currentTarget.style.display = "block";
+                      }}
                     />
                   </div>
                 )}
               </div>
 
-              <Button type="submit" className="w-full bg-white text-black hover:bg-white/90" size="lg">
-                Create Account
+              <Button
+                type="submit"
+                className="w-full bg-white text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                size="lg"
+                disabled={isLoading}>
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 

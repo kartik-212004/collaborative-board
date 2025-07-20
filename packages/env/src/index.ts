@@ -10,8 +10,8 @@ const AllEnv = {
   HTTP_PORT: process.env.HTTP_PORT,
   NODE_ENV: process.env.NODE_ENV,
   WEBSOCKET_PORT: process.env.WEBSOCKET_PORT,
+  NEXT_PUBLIC_HTTP_BACKEND_URL: process.env.NEXT_PUBLIC_HTTP_BACKEND_URL,
 };
-
 const parsed = envSchema.safeParse(AllEnv);
 
 if (!parsed.success) {
@@ -24,6 +24,8 @@ const parsedEnv = {
   HTTP_PORT: parseInt(parsed.data.HTTP_PORT!),
   NODE_ENV: parsed.data.NODE_ENV!,
   WEBSOCKET_PORT: parseInt(parsed.data.WEBSOCKET_PORT!),
+  NEXT_PUBLIC_HTTP_BACKEND_URL: parsed.data.NEXT_PUBLIC_HTTP_BACKEND_URL!,
 };
 
-export const { SECRET_KEY, DATABASE_URL, HTTP_PORT, NODE_ENV, WEBSOCKET_PORT } = parsedEnv;
+export const { SECRET_KEY, DATABASE_URL, HTTP_PORT, NODE_ENV, WEBSOCKET_PORT, NEXT_PUBLIC_HTTP_BACKEND_URL } =
+  parsedEnv;

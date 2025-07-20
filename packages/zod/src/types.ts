@@ -12,4 +12,5 @@ export const envSchema = z.object({
   HTTP_PORT: z.string().min(1).optional(),
   WEBSOCKET_PORT: z.string().min(1).optional(),
   NODE_ENV: z.enum(["development", "production", "test"]),
+  NEXT_PUBLIC_HTTP_BACKEND_URL: z.string().min(1, "FRONTEND_PUBLIC_URL is required"),
 });

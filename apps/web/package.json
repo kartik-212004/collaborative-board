@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "prebuild": "pnpm --filter @repo/database... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
+    "build": "pnpm prebuild && next build",
+    "dev": "pnpm prebuild && next dev",
     "lint": "next lint",
     "start": "next start"
   },
@@ -38,6 +39,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
@@ -60,6 +62,8 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@repo/zod": "workspace:*",
+    "@repo/env": "workspace:*",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
