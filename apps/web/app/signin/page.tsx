@@ -31,14 +31,12 @@ export default function SignInPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
     console.log("Form submitted:", formData);
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="mb-8 text-center">
           <Link href="/" className="mb-6 inline-flex items-center space-x-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
@@ -72,7 +70,6 @@ export default function SignInPage() {
                 />
               </div>
 
-              {/* Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-white">
                   Password
@@ -103,7 +100,6 @@ export default function SignInPage() {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -121,12 +117,10 @@ export default function SignInPage() {
                 </Link>
               </div>
 
-              {/* Submit Button */}
               <Button type="submit" className="w-full bg-white text-black hover:bg-white/90" size="lg">
                 Sign In
               </Button>
 
-              {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-white/20" />
@@ -136,7 +130,6 @@ export default function SignInPage() {
                 </div>
               </div>
 
-              {/* Social Sign In */}
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   variant="outline"
@@ -174,7 +167,6 @@ export default function SignInPage() {
               </div>
             </form>
 
-            {/* Sign Up Link */}
             <div className="mt-6 text-center text-sm">
               <span className="text-white/70">{"Don't have an account? "}</span>
               <Link href="/signup" className="font-medium text-white hover:text-white/80 hover:underline">
@@ -184,7 +176,6 @@ export default function SignInPage() {
           </CardContent>
         </Card>
 
-        {/* Help */}
         <p className="mt-4 text-center text-xs text-white/50">
           Need help?{" "}
           <Link href="#" className="underline hover:text-white/70">
