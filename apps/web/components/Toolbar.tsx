@@ -7,18 +7,18 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 type Tool = "rectangle" | "circle";
 
 export default function Toolbar({
-  selectedTool,
-  setSelectedTool,
+  element,
+  setelement,
 }: {
-  selectedTool: Tool;
-  setSelectedTool: (tool: Tool) => void;
+  element: Tool;
+  setelement: (tool: Tool) => void;
 }) {
   return (
     <ToggleGroup
       type="single"
-      value={selectedTool}
+      value={element}
       onValueChange={(val: Tool) => {
-        if (val) setSelectedTool(val);
+        if (val) setelement(val);
       }}
       className="border border-gray-300 bg-white p-2 shadow-sm">
       <ToggleGroupItem
