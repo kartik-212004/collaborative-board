@@ -32,11 +32,11 @@ export default function LandingPage() {
               Start Drawing Now
               <ArrowRight className="ml-2 h-4 w-4" />
             </AuthButton>
-            <Link href="#demo">
+            <Link href="/demo">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 bg-transparent px-8 text-lg text-white transition-colors hover:border-white/50 hover:bg-white/10">
+                className="border-white/30 bg-transparent px-8 text-lg text-white transition-colors hover:border-white/50 hover:bg-white/10 hover:text-white">
                 Watch Demo
               </Button>
             </Link>

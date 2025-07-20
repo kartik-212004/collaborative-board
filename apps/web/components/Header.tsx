@@ -14,7 +14,6 @@ export default function Header() {
 
   const handleLogout = () => {
     logout();
-    // Optionally redirect to home page after logout
     window.location.href = "/";
   };
 
@@ -40,7 +39,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-white transition-colors hover:bg-white/10 hover:text-white">
+                className="text-white transition-colors hover:bg-white/10 hover:text-red-500">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
