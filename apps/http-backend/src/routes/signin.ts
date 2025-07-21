@@ -1,5 +1,5 @@
-import { prisma } from "@repo/database/client";
 import { SECRET_KEY } from "@repo/env";
+import { prisma } from "@repo/prisma/client";
 import express, { Router } from "express";
 import { sign } from "jsonwebtoken";
 

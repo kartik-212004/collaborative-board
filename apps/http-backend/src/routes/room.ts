@@ -1,4 +1,4 @@
-import { prisma } from "@repo/database/client";
+import { prisma } from "@repo/prisma/client";
 import express, { Router, Request, Response } from "express";
 
 import { middleware } from "../middleware/middlware";

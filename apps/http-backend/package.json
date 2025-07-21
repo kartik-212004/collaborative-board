@@ -4,14 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "prebuild": "pnpm --filter @repo/database... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
+    "prebuild": "pnpm --filter @repo/prisma... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
     "build": "pnpm prebuild && tsc -b",
     "start": "pnpm build && node dist/index.js",
     "dev": "pnpm build && node dist/index.js"
   },
   "dependencies": {
     "@repo/typescript-config": "workspace:*",
-    "@repo/database": "workspace:*",
+    "@repo/prisma": "workspace:*",
     "@repo/zod": "workspace:*",
     "@repo/env": "workspace:*",
     "cors": "^2.8.5",

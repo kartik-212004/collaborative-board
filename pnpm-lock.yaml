@@ -41,12 +41,12 @@ importers:
 
   apps/http-backend:
     dependencies:
-      '@repo/database':
-        specifier: workspace:*
-        version: link:../../packages/database
       '@repo/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@repo/prisma':
+        specifier: workspace:*
+        version: link:../../packages/prisma
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -262,12 +262,12 @@ importers:
 
   apps/ws-backend:
     dependencies:
-      '@repo/database':
-        specifier: workspace:*
-        version: link:../../packages/database
       '@repo/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@repo/prisma':
+        specifier: workspace:*
+        version: link:../../packages/prisma
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -296,28 +296,6 @@ importers:
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
-
-  packages/database:
-    dependencies:
-      '@prisma/client':
-        specifier: 6.12.0
-        version: 6.12.0(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)
-      dotenv:
-        specifier: ^17.2.0
-        version: 17.2.0
-      mongoose:
-        specifier: ^8.16.3
-        version: 8.16.3
-      prisma:
-        specifier: ^6.12.0
-        version: 6.12.0(typescript@5.8.3)
-    devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      '@types/mongoose':
-        specifier: ^5.11.97
-        version: 5.11.97
 
   packages/env:
     dependencies:
@@ -373,6 +351,28 @@ importers:
       typescript-eslint:
         specifier: ^8.35.0
         version: 8.35.0(eslint@9.30.0(jiti@2.4.2))(typescript@5.8.2)
+
+  packages/prisma:
+    dependencies:
+      '@prisma/client':
+        specifier: 6.12.0
+        version: 6.12.0(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)
+      dotenv:
+        specifier: ^17.2.0
+        version: 17.2.0
+      mongoose:
+        specifier: ^8.16.3
+        version: 8.16.3
+      prisma:
+        specifier: ^6.12.0
+        version: 6.12.0(typescript@5.8.3)
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/mongoose':
+        specifier: ^5.11.97
+        version: 5.11.97
 
   packages/typescript-config: {}
 

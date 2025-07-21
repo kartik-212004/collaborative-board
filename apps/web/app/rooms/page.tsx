@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 
 import api from "@/lib/apt";
 
+import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -96,35 +97,22 @@ export default function RoomsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-4">
-      <div className="container mx-auto max-w-md">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hover:text-white">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-
-        {/* Main Content */}
+    <div className="min-h-screen bg-black">
+      <Header />
+      <div className="container mx-auto my-4 max-w-md">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold text-white">Room</h1>
           <p className="text-white/70">Create a new room or join an existing one</p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-6 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-400">
             {error}
           </div>
         )}
 
-        {/* Single Card */}
         <Card className="border-white/20 bg-white/5">
           <CardContent className="space-y-6 p-6">
-            {/* Room Code Input */}
             <div className="space-y-2">
               <Label htmlFor="roomCode" className="text-sm text-white">
                 Room Code
@@ -143,7 +131,6 @@ export default function RoomsPage() {
               />
             </div>
 
-            {/* Buttons */}
             <div className="space-y-3">
               <Button
                 onClick={handleRoomCreate}
@@ -163,7 +150,6 @@ export default function RoomsPage() {
           </CardContent>
         </Card>
 
-        {/* Info */}
         <div className="mt-8 text-center">
           <p className="text-sm text-white/60">
             Generate a code to create a new room, or enter an existing code to join

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm --filter @repo/database... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
+    "prebuild": "pnpm --filter @repo/prisma... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
     "build": "pnpm prebuild && next build",
     "dev": "pnpm prebuild && next dev",
     "lint": "next lint",

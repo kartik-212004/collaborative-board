@@ -1,5 +1,5 @@
-import { prisma } from "@repo/database/client";
 import { WEBSOCKET_PORT, SECRET_KEY } from "@repo/env";
+import { prisma } from "@repo/prisma/client";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
 
