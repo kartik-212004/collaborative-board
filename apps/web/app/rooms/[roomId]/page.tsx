@@ -20,14 +20,12 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     clicked = true;
     Xin = e.clientX;
     Yin = e.clientY;
-    console.log(Xin, Yin);
   }
 
   function handleMouseUp(e: MouseEvent) {
     clicked = false;
     Xout = e.clientX - Xin;
     Yout = e.clientY - Yin;
-    console.log(Xout, Yout);
     Square.push({ Xin, Yin, Xout, Yout });
     Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
   }
@@ -36,7 +34,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     if (clicked) {
       Xout = e.clientX - Xin;
       Yout = e.clientY - Yin;
-      console.log(Xout, Yout);
       if (select == "rectangle") {
         if (!ctxRef.current) return;
 
@@ -60,7 +57,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
         ctxRef.current.arc(Xin, Yin, radius, 0, 2 * Math.PI);
         ctxRef.current.stroke();
         Circle.map((e) => {
-          console.log(Circle);
           if (!ctxRef.current || !canvasRef.current) return;
           ctxRef.current.beginPath();
           ctxRef.current.strokeStyle = "white";

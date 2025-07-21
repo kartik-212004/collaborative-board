@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import axios from "axios";
 import { ArrowLeft } from "lucide-react";
+
+import api from "@/lib/apt";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,11 +32,26 @@ export default function RoomsPage() {
     return result;
   };
 
-  function handleRoomCreate() {
+  async function handleRoomCreate() {
+    setIsCreating(true);
     setError("");
-    const roomCode = generateRoomCode();
-    setJoinCode(roomCode);
-    console.log(`Generated room code: ${roomCode}`);
+
+    try {
+      const roomCode = generateRoomCode();
+      setJoinCode(roomCode);
+      const response = await api.post("/room", { slug: roomCode, type: "create" });
+      console.log(response);
+
+      if (response.status === 201) {
+        setIsCreating(false);
+      } else {
+        throw new Error("Unexpected response status");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError("Error while creating room");
+      setIsCreating(false);
+    }
   }
 
   async function handleRoomJoin() {
@@ -48,7 +64,10 @@ export default function RoomsPage() {
     setIsJoining(true);
 
     try {
-      console.log(`Joining room with code: ${joinCode.toUpperCase()}`);
+      const token = localStorage.getItem("authToken");
+
+      const response = await api.post("/room", { slug: joinCode, type: "join" });
+      console.log(response);
       router.push(`/rooms/${joinCode.toUpperCase()}`);
     } catch (error) {
       console.error("Error joining room:", error);
@@ -131,7 +150,7 @@ export default function RoomsPage() {
                 disabled={isCreating}
                 variant="outline"
                 className="w-full border-white/20 text-black hover:bg-white/10 hover:text-white">
-                Generate Room Code
+                {isCreating ? "Creating Room" : " Create Room"}
               </Button>
 
               <Button
