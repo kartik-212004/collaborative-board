@@ -13,6 +13,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   const { roomId } = use(params);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const { isAuthenticated, user, isLoading } = useAuth();
+  const shapeRef = useRef<"rectangle" | "circle">(select);
 
   let Square: { Yin: number; Xin: number; Xout: number; Yout: number }[] = [];
   let Circle: { Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[] = [];
@@ -41,6 +42,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     const token = localStorage.getItem("authToken");
 
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL!}?token=${token}`);
+    console.log(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
     socketRef.current.onopen = () => {
       console.log("Connected");
@@ -50,27 +52,63 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       console.error("Error:", err);
     };
 
-    socketRef.current.onclose = () => {
-      console.log("Disconnected");
-    };
-
     return () => {
-      socketRef.current?.close();
+      // socketRef.current?.close();
     };
   }, []);
+
+  useEffect(() => {
+    shapeRef.current = select;
+  }, [select]);
 
   function handleMouseDown(e: MouseEvent) {
     clicked = true;
     Xin = e.clientX;
     Yin = e.clientY;
+    shapeRef.current = select; // Capture shape at mouse down
   }
 
   function handleMouseUp(e: MouseEvent) {
     clicked = false;
     Xout = e.clientX - Xin;
     Yout = e.clientY - Yin;
-    Square.push({ Xin, Yin, Xout, Yout });
-    Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
+
+    if (shapeRef.current === "circle") {
+      console.log("going to circle");
+      Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
+      socketRef.current?.send(
+        JSON.stringify({
+          name: user?.name,
+          type: "draw",
+          roomId: roomId,
+          payload: {
+            Xin: Xin,
+            Yin: Yin,
+            radius: radius,
+            shape: "circle",
+            timestamp: new Date().getTime(),
+          },
+        })
+      );
+    } else if (shapeRef.current === "rectangle") {
+      console.log("going to rectangle");
+      Square.push({ Xin, Yin, Xout, Yout });
+      socketRef.current?.send(
+        JSON.stringify({
+          name: user?.name,
+          type: "draw",
+          roomId: roomId,
+          payload: {
+            Xin: Xin,
+            Yin: Yin,
+            Xout: Xout,
+            Yout: Yout,
+            shape: "rectangle",
+            timestamp: new Date().getTime(),
+          },
+        })
+      );
+    }
   }
 
   function handleMouseMove(e: MouseEvent) {
@@ -109,7 +147,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       }
     }
   }
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

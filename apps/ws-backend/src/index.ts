@@ -103,6 +103,7 @@ wss.on("connection", (ws: WebSocket, request) => {
           break;
 
         case "draw":
+          console.log(message);
           if (
             !Xin ||
             !Yin ||
