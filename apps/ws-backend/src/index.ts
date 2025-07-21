@@ -4,15 +4,24 @@ import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
 
 const rooms: Record<string, WebSocket[]> = {};
+
 const wss = new WebSocketServer({
   port: WEBSOCKET_PORT,
 });
 
 interface MessageType {
   name: string;
-  type: string;
-  payload: Record<string, string>;
+  type: "join" | "draw";
   roomId: string;
+  payload: {
+    Xin: number;
+    Yin: number;
+    Xout?: number;
+    Yout?: number;
+    radius?: number;
+    shape: "rectangle" | "circle";
+    timestamp?: number;
+  };
 }
 
 wss.on("connection", (ws: WebSocket, request) => {
@@ -41,9 +50,12 @@ wss.on("connection", (ws: WebSocket, request) => {
   ws.on("message", async (data) => {
     try {
       const message: MessageType = JSON.parse(data.toString());
-      console.log("Received:", message);
-
-      const { roomId, name, payload, type } = message;
+      const {
+        roomId,
+        name,
+        type,
+        payload: { Xin, Yin, Xout, Yout, radius, shape },
+      } = message;
 
       switch (type) {
         case "join":
@@ -66,14 +78,15 @@ wss.on("connection", (ws: WebSocket, request) => {
             }
 
             rooms[roomId].push(ws);
+
             rooms[roomId].forEach((client) => {
               if (client.readyState === WebSocket.OPEN) {
                 client.send(
                   JSON.stringify({
-                    name,
-                    roomId,
-                    payload: { message: `${name} joined the room` },
                     type: "user_joined",
+                    roomId,
+                    name,
+                    payload: { message: `${name} joined the room` },
                   })
                 );
               }
@@ -89,40 +102,69 @@ wss.on("connection", (ws: WebSocket, request) => {
           }
           break;
 
-        case "chat":
+        case "draw":
+          if (
+            !Xin ||
+            !Yin ||
+            !shape ||
+            (shape === "rectangle" && (!Xout || !Yout)) ||
+            (shape === "circle" && !radius)
+          ) {
+            return ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "Invalid draw payload",
+              })
+            );
+          }
+
           if (rooms[roomId]) {
             rooms[roomId].forEach((client) => {
-              if (client.readyState === WebSocket.OPEN) {
+              if (client !== ws && client.readyState === WebSocket.OPEN) {
                 client.send(
                   JSON.stringify({
-                    name,
+                    type: "draw",
                     roomId,
-                    payload: { message: payload.message },
-                    type,
+                    name,
+                    payload: { Xin, Yin, Xout, Yout, radius, shape },
                   })
                 );
               }
             });
           }
           break;
+
+        default:
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              message: `Unknown message type: ${type}`,
+            })
+          );
+          break;
       }
     } catch (error) {
       console.log("Error parsing message:", error);
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Invalid message format",
+        })
+      );
     }
   });
 
   ws.on("close", () => {
     console.log("Client disconnected");
     Object.keys(rooms).forEach((roomId) => {
-      if (rooms[roomId]) {
-        rooms[roomId] = rooms[roomId].filter((client) => client !== ws);
-        if (rooms[roomId].length === 0) {
-          delete rooms[roomId];
-          console.log(`Room ${roomId} deleted (empty)`);
-        }
+      if (!rooms[roomId]) return;
+      rooms[roomId] = rooms[roomId].filter((client) => client !== ws);
+      if (rooms[roomId].length === 0) {
+        delete rooms[roomId];
+        console.log(`Room ${roomId} deleted (empty)`);
       }
     });
   });
 });
 
-console.log(`WebSocket server running on port ${WEBSOCKET_PORT}`);
+console.log(`✅ WebSocket server running on port ${WEBSOCKET_PORT}`);

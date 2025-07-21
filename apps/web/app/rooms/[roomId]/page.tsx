@@ -22,6 +22,21 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
 
   let clicked = false;
 
+  interface MessageType {
+    name: string;
+    type: "join" | "draw";
+    roomId: string;
+    payload: {
+      Xin: number;
+      Yin: number;
+      Xout?: number;
+      Yout?: number;
+      radius?: number;
+      shape: "rectangle" | "circle";
+      timestamp?: number;
+    };
+  }
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
