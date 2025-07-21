@@ -99,7 +99,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             onClick={() => {
               setSelect("rectangle");
             }}
-            className={`w-28 text-black hover:bg-green-700 ${select == "circle" ? "bg-green-500" : "bg-white"}`}>
+            className={`w-28 text-black hover:bg-green-700 ${select == "rectangle" ? "bg-green-500" : "bg-white"}`}>
             Rectangle
           </Button>
         </div>
