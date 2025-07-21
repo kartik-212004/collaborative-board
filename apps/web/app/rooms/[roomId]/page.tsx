@@ -4,11 +4,15 @@ import React, { useEffect, useRef, use, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
+import { useAuth } from "@/hooks/use-auth";
+
 export default function Drawing({ params }: { params: Promise<{ roomId: string }> }) {
   const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const { roomId } = use(params);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   let Square: { Yin: number; Xin: number; Xout: number; Yout: number }[] = [];
   let Circle: { Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[] = [];
@@ -19,19 +23,16 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   let clicked = false;
 
   useEffect(() => {
-    socketRef.current = new WebSocket("ws://localhost:3001");
+    const token = localStorage.getItem("authToken");
+
+    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL!}?token=${token}`);
 
     socketRef.current.onopen = () => {
       console.log("Connected");
-      socketRef.current?.send("Hello from client");
-    };
-
-    socketRef.current.onmessage = (event) => {
-      console.log("Message:", event.data);
     };
 
     socketRef.current.onerror = (err) => {
-      console.error("💥 Error:", err);
+      console.error("Error:", err);
     };
 
     socketRef.current.onclose = () => {
@@ -103,7 +104,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     canvas?.addEventListener("mousemove", handleMouseMove);
   });
   return (
-    <div className="relative">
+    <div className="relative bg-black">
       <div className="absolute bottom-0 flex w-full flex-row justify-center text-center">
         <div className="space-x-4 p-5 font-mono font-extrabold">
           <Button
