@@ -5,13 +5,11 @@ import React, { useEffect, useRef, use, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function Drawing({ params }: { params: Promise<{ roomId: string }> }) {
-  const [select, setSelect] = useState<"rectangle" | "circle">("circle");
+  const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const Square = useRef<{ Yin: number; Xin: number; Xout: number; Yout: number }[]>([]);
-  const Circle = useRef<{ Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[]>(
-    []
-  );
+  let Square: { Yin: number; Xin: number; Xout: number; Yout: number }[] = [];
+  let Circle: { Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[] = [];
   let radius = 0;
 
   let Xin: number, Yin: number, Xout: number, Yout: number;
@@ -30,11 +28,8 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     Xout = e.clientX - Xin;
     Yout = e.clientY - Yin;
     console.log(Xout, Yout);
-    if (select === "rectangle") {
-      Square.current.push({ Xin, Yin, Xout, Yout });
-    } else if (select === "circle") {
-      Circle.current.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
-    }
+    Square.push({ Xin, Yin, Xout, Yout });
+    Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
   }
 
   function handleMouseMove(e: MouseEvent) {
@@ -48,7 +43,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
         ctxRef.current.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
         ctxRef.current.strokeRect(Xin, Yin, Xout, Yout);
         ctxRef.current.strokeStyle = "white";
-        Square.current.map((e) => {
+        Square.map((e) => {
           if (!ctxRef.current) return;
           ctxRef.current.strokeStyle = "white";
           ctxRef.current.strokeRect(e.Xin, e.Yin, e.Xout, e.Yout);
@@ -64,7 +59,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
         ctxRef.current.strokeStyle = "white";
         ctxRef.current.arc(Xin, Yin, radius, 0, 2 * Math.PI);
         ctxRef.current.stroke();
-        Circle.current.map((e) => {
+        Circle.map((e) => {
           console.log(Circle);
           if (!ctxRef.current || !canvasRef.current) return;
           ctxRef.current.beginPath();
@@ -90,17 +85,17 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
         <div className="space-x-4 p-5 font-mono font-extrabold">
           <Button
             onClick={() => {
-              setSelect("circle");
+              setSelect("rectangle");
             }}
-            className={`w-28 text-black hover:bg-green-700 ${select == "circle" ? "bg-green-500" : "bg-white"}`}>
-            Circle
+            className={`w-28 text-black hover:bg-green-500 ${select == "rectangle" ? "bg-green-500" : "bg-white"}`}>
+            Rectangle
           </Button>
           <Button
             onClick={() => {
-              setSelect("rectangle");
+              setSelect("circle");
             }}
-            className={`w-28 text-black hover:bg-green-700 ${select == "rectangle" ? "bg-green-500" : "bg-white"}`}>
-            Rectangle
+            className={`w-28 text-black hover:bg-green-500 ${select == "circle" ? "bg-green-500" : "bg-white"}`}>
+            Circle
           </Button>
         </div>
       </div>
