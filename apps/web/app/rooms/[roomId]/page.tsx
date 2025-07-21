@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 export default function Drawing({ params }: { params: Promise<{ roomId: string }> }) {
   const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const socketRef = useRef<WebSocket | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+
   let Square: { Yin: number; Xin: number; Xout: number; Yout: number }[] = [];
   let Circle: { Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[] = [];
   let radius = 0;
@@ -15,6 +17,31 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   let Xin: number, Yin: number, Xout: number, Yout: number;
 
   let clicked = false;
+
+  useEffect(() => {
+    socketRef.current = new WebSocket("ws://localhost:3001");
+
+    socketRef.current.onopen = () => {
+      console.log("Connected");
+      socketRef.current?.send("Hello from client");
+    };
+
+    socketRef.current.onmessage = (event) => {
+      console.log("Message:", event.data);
+    };
+
+    socketRef.current.onerror = (err) => {
+      console.error("💥 Error:", err);
+    };
+
+    socketRef.current.onclose = () => {
+      console.log("Disconnected");
+    };
+
+    return () => {
+      socketRef.current?.close();
+    };
+  }, []);
 
   function handleMouseDown(e: MouseEvent) {
     clicked = true;
