@@ -33,7 +33,7 @@ export default function LandingPage() {
               Start Drawing Now
               <ArrowRight className="ml-2 h-4 w-4" />
             </AuthButton>
-            <Link href="/demo">
+            <Link href="#demo">
               <Button
                 size="lg"
                 variant="outline"
