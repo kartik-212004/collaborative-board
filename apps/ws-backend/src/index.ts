@@ -103,7 +103,6 @@ wss.on("connection", (ws: WebSocket, request) => {
           break;
 
         case "draw":
-          console.log(message);
           if (
             !Xin ||
             !Yin ||
@@ -118,10 +117,13 @@ wss.on("connection", (ws: WebSocket, request) => {
               })
             );
           }
-
           if (rooms[roomId]) {
+            console.log("Insde the check where we see if room is available or not");
+            console.log(rooms[roomId].length);
             rooms[roomId].forEach((client) => {
-              if (client !== ws && client.readyState === WebSocket.OPEN) {
+              console.log("rooms[roomId].forEach((client)");
+              if (true) {
+                console.log("(client !== ws && client.readyState === WebSocket.OPEN)");
                 client.send(
                   JSON.stringify({
                     type: "draw",
@@ -132,6 +134,8 @@ wss.on("connection", (ws: WebSocket, request) => {
                 );
               }
             });
+            console.log("Draw logic ends here");
+            console.log(message);
           }
           break;
 

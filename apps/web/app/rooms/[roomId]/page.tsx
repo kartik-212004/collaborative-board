@@ -10,23 +10,40 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   const { roomId } = use(params);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const { isAuthenticated, user, isLoading } = useAuth();
   const shapeRef = useRef<"rectangle" | "circle">(select);
 
-  let Square: { Yin: number; Xin: number; Xout: number; Yout: number }[] = [];
-  let Circle: { Yin: number; Xin: number; radius: number; startAngle: number; endAngle: number }[] = [];
-  let radius = 0;
+  const shapesRef = useRef<{
+    squares: { Yin: number; Xin: number; Xout: number; Yout: number }[];
+    circles: { Yin: number; Xin: number; radius: number }[];
+  }>({
+    squares: [],
+    circles: [],
+  });
 
-  let Xin: number, Yin: number, Xout: number, Yout: number;
-
-  let clicked = false;
+  const drawingStateRef = useRef<{
+    Xin: number;
+    Yin: number;
+    Xout: number;
+    Yout: number;
+    radius: number;
+    clicked: boolean;
+  }>({
+    Xin: 0,
+    Yin: 0,
+    Xout: 0,
+    Yout: 0,
+    radius: 0,
+    clicked: false,
+  });
 
   interface MessageType {
     name: string;
-    type: "join" | "draw";
+    type: "join" | "draw" | "user_joined" | "error" | "clear";
     roomId: string;
     payload: {
       Xin: number;
@@ -36,72 +53,210 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       radius?: number;
       shape: "rectangle" | "circle";
       timestamp?: number;
+      message?: string;
     };
   }
+
+  const redrawCanvas = () => {
+    if (!ctxRef.current || !canvasRef.current) return;
+
+    ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctxRef.current.strokeStyle = "white";
+    ctxRef.current.lineWidth = 2;
+
+    shapesRef.current.squares.forEach((rect) => {
+      if (ctxRef.current) {
+        ctxRef.current.strokeRect(rect.Xin, rect.Yin, rect.Xout, rect.Yout);
+      }
+    });
+
+    shapesRef.current.circles.forEach((circle) => {
+      if (ctxRef.current) {
+        ctxRef.current.beginPath();
+        ctxRef.current.arc(circle.Xin, circle.Yin, circle.radius, 0, 2 * Math.PI);
+        ctxRef.current.stroke();
+      }
+    });
+  };
+
+  const clearCanvas = () => {
+    shapesRef.current.squares = [];
+    shapesRef.current.circles = [];
+
+    if (ctxRef.current && canvasRef.current) {
+      ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const message = {
+        name: user?.name || "Anonymous",
+        type: "clear" as const,
+        roomId: roomId,
+        payload: {
+          Xin: 0,
+          Yin: 0,
+          shape: "rectangle" as const,
+          timestamp: new Date().getTime(),
+        },
+      };
+      console.log("Sending clear message:", message);
+      socketRef.current.send(JSON.stringify(message));
+    }
+  };
+
+  const getCanvasCoordinates = (e: MouseEvent) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
-    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL!}?token=${token}`);
-    console.log(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
+    if (!token) {
+      console.error("No auth token found");
+      return;
+    }
+
+    console.log("Connecting to WebSocket...");
+    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
     socketRef.current.onopen = () => {
-      console.log("Connected");
+      console.log("WebSocket Connected");
+      setIsConnected(true);
+
+      if (socketRef.current && user?.name) {
+        const joinMessage = {
+          name: user.name,
+          type: "join",
+          roomId: roomId,
+          payload: {
+            Xin: 0,
+            Yin: 0,
+            shape: "rectangle" as const,
+          },
+        };
+        console.log("Sending join message:", joinMessage);
+        socketRef.current.send(JSON.stringify(joinMessage));
+      }
     };
 
     socketRef.current.onerror = (err) => {
-      console.error("Error:", err);
+      console.error("WebSocket Error:", err);
+      setIsConnected(false);
     };
 
-    socketRef.current.onmessage = (data) => {
-      console.log("hello");
+    socketRef.current.onclose = (event) => {
+      console.log("WebSocket Closed:", event.code, event.reason);
+      setIsConnected(false);
+    };
+
+    socketRef.current.onmessage = (event) => {
+      console.log("Received message:", event.data);
+
+      try {
+        const message: MessageType = JSON.parse(event.data);
+        console.log("Parsed message:", message);
+
+        if (message.type === "draw") {
+          const payload = message.payload;
+          console.log("Processing draw message:", payload);
+
+          if (payload.shape === "rectangle" && payload.Xout !== undefined && payload.Yout !== undefined) {
+            shapesRef.current.squares.push({
+              Xin: payload.Xin,
+              Yin: payload.Yin,
+              Xout: payload.Xout,
+              Yout: payload.Yout,
+            });
+          } else if (payload.shape === "circle" && payload.radius !== undefined) {
+            shapesRef.current.circles.push({
+              Xin: payload.Xin,
+              Yin: payload.Yin,
+              radius: payload.radius,
+            });
+          }
+
+          redrawCanvas();
+        } else if (message.type === "clear") {
+          console.log("Received clear message");
+
+          shapesRef.current.squares = [];
+          shapesRef.current.circles = [];
+
+          if (ctxRef.current && canvasRef.current) {
+            ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          }
+        } else if (message.type === "user_joined") {
+          console.log("User joined:", message.payload.message);
+        } else if (message.type === "error") {
+          console.error("Server error:", message.payload.message);
+        }
+      } catch (error) {
+        console.error("Error parsing message:", error);
+      }
     };
 
     return () => {
-      // socketRef.current?.close();
+      console.log("Cleaning up WebSocket connection");
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
     };
-  }, []);
+  }, [roomId, user?.name]);
 
   useEffect(() => {
     shapeRef.current = select;
   }, [select]);
 
   function handleMouseDown(e: MouseEvent) {
-    clicked = true;
-    Xin = e.clientX;
-    Yin = e.clientY;
-    shapeRef.current = select;
+    const coords = getCanvasCoordinates(e);
+    drawingStateRef.current.clicked = true;
+    drawingStateRef.current.Xin = coords.x;
+    drawingStateRef.current.Yin = coords.y;
+    console.log("Mouse down at:", coords);
   }
 
   function handleMouseUp(e: MouseEvent) {
-    clicked = false;
-    Xout = e.clientX - Xin;
-    Yout = e.clientY - Yin;
+    if (!drawingStateRef.current.clicked) return;
+
+    const coords = getCanvasCoordinates(e);
+    drawingStateRef.current.clicked = false;
+    drawingStateRef.current.Xout = coords.x - drawingStateRef.current.Xin;
+    drawingStateRef.current.Yout = coords.y - drawingStateRef.current.Yin;
+
+    const { Xin, Yin, Xout, Yout, radius } = drawingStateRef.current;
 
     if (shapeRef.current === "circle") {
-      console.log("going to circle");
-      Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
-      socketRef.current?.send(
-        JSON.stringify({
-          name: user?.name || "lol",
+      console.log("Sending circle draw message");
+      shapesRef.current.circles.push({ Xin, Yin, radius });
+
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        const message = {
+          name: user?.name || "Anonymous",
           type: "draw",
           roomId: roomId,
           payload: {
             Xin: Xin,
             Yin: Yin,
             radius: radius,
-            shape: "circle",
+            shape: "circle" as const,
             timestamp: new Date().getTime(),
           },
-        })
-      );
+        };
+        console.log("Sending circle message:", message);
+        socketRef.current.send(JSON.stringify(message));
+      }
     } else if (shapeRef.current === "rectangle") {
-      console.log("going to rectangle");
-      Square.push({ Xin, Yin, Xout, Yout });
-      console.log(user?.name, user);
-      socketRef.current?.send(
-        JSON.stringify({
-          name: user?.name || "lol",
+      console.log("Sending rectangle draw message");
+      shapesRef.current.squares.push({ Xin, Yin, Xout, Yout });
+
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        const message = {
+          name: user?.name || "Anonymous",
           type: "draw",
           roomId: roomId,
           payload: {
@@ -109,88 +264,101 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             Yin: Yin,
             Xout: Xout,
             Yout: Yout,
-            shape: "rectangle",
+            shape: "rectangle" as const,
             timestamp: new Date().getTime(),
           },
-        })
-      );
+        };
+        console.log("Sending rectangle message:", message);
+        socketRef.current.send(JSON.stringify(message));
+      }
     }
+
+    redrawCanvas();
   }
 
   function handleMouseMove(e: MouseEvent) {
-    if (clicked) {
-      Xout = e.clientX - Xin;
-      Yout = e.clientY - Yin;
-      if (select == "rectangle") {
-        if (!ctxRef.current) return;
+    if (!drawingStateRef.current.clicked) return;
 
-        ctxRef.current.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
-        ctxRef.current.strokeRect(Xin, Yin, Xout, Yout);
-        ctxRef.current.strokeStyle = "white";
-        Square.map((e) => {
-          if (!ctxRef.current) return;
-          ctxRef.current.strokeStyle = "white";
-          ctxRef.current.strokeRect(e.Xin, e.Yin, e.Xout, e.Yout);
-        });
-      }
-      if (select == "circle") {
-        if (!ctxRef.current || !canvasRef.current) return;
+    const coords = getCanvasCoordinates(e);
+    drawingStateRef.current.Xout = coords.x - drawingStateRef.current.Xin;
+    drawingStateRef.current.Yout = coords.y - drawingStateRef.current.Yin;
 
-        ctxRef.current.beginPath();
+    const { Xin, Yin, Xout, Yout } = drawingStateRef.current;
 
-        radius = Math.sqrt(Math.pow(Xout, 2) + Math.pow(Yout, 2));
-        ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        ctxRef.current.strokeStyle = "white";
-        ctxRef.current.arc(Xin, Yin, radius, 0, 2 * Math.PI);
-        ctxRef.current.stroke();
-        Circle.map((e) => {
-          if (!ctxRef.current || !canvasRef.current) return;
-          ctxRef.current.beginPath();
-          ctxRef.current.strokeStyle = "white";
-          ctxRef.current.arc(e.Xin, e.Yin, e.radius, 0, 2 * Math.PI);
-          ctxRef.current.stroke();
-        });
-      }
+    if (!ctxRef.current || !canvasRef.current) return;
+
+    if (select === "rectangle") {
+      redrawCanvas();
+      ctxRef.current.strokeStyle = "white";
+      ctxRef.current.strokeRect(Xin, Yin, Xout, Yout);
+    } else if (select === "circle") {
+      drawingStateRef.current.radius = Math.sqrt(Math.pow(Xout, 2) + Math.pow(Yout, 2));
+      redrawCanvas();
+      ctxRef.current.beginPath();
+      ctxRef.current.strokeStyle = "white";
+      ctxRef.current.arc(Xin, Yin, drawingStateRef.current.radius, 0, 2 * Math.PI);
+      ctxRef.current.stroke();
     }
   }
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     ctxRef.current = canvas.getContext("2d");
-    canvas?.addEventListener("mousedown", handleMouseDown);
-    canvas?.addEventListener("mouseup", handleMouseUp);
-    canvas?.addEventListener("mousemove", handleMouseMove);
+    if (ctxRef.current) {
+      ctxRef.current.strokeStyle = "white";
+      ctxRef.current.lineWidth = 2;
+    }
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mouseup", handleMouseUp);
+    canvas.addEventListener("mousemove", handleMouseMove);
+
     return () => {
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mouseup", handleMouseUp);
       canvas.removeEventListener("mousemove", handleMouseMove);
     };
-  });
+  }, [select]);
+
   return (
     <div className="relative bg-black">
+      <div className="absolute right-4 top-4 z-10">
+        <div
+          className={`rounded px-3 py-1 text-sm ${isConnected ? "bg-green-500" : "bg-red-500"} text-white`}>
+          {isConnected ? "Connected" : "Disconnected"}
+        </div>
+      </div>
+
       <div className="absolute bottom-0 flex w-full flex-row justify-center text-center">
         <div className="space-x-4 p-5 font-mono font-extrabold">
           <Button
-            onClick={() => {
-              setSelect("rectangle");
-            }}
-            className={`w-28 text-black hover:bg-green-500 ${select == "rectangle" ? "bg-green-500" : "bg-white"}`}>
+            onClick={() => setSelect("rectangle")}
+            className={`w-28 text-black hover:bg-green-500 ${select === "rectangle" ? "bg-green-500" : "bg-white"}`}>
             Rectangle
           </Button>
           <Button
-            onClick={() => {
-              setSelect("circle");
-            }}
-            className={`w-28 text-black hover:bg-green-500 ${select == "circle" ? "bg-green-500" : "bg-white"}`}>
+            onClick={() => setSelect("circle")}
+            className={`w-28 text-black hover:bg-green-500 ${select === "circle" ? "bg-green-500" : "bg-white"}`}>
             Circle
+          </Button>
+          <Button
+            onClick={() => navigator.clipboard.writeText(roomId)}
+            className="w-28 border border-gray-600 bg-gray-700 text-white hover:bg-gray-600">
+            COPY CODE
+          </Button>
+          <Button onClick={clearCanvas} className="w-28 bg-red-600 text-white hover:bg-red-700">
+            CLEAR
           </Button>
         </div>
       </div>
       <canvas
         ref={canvasRef}
-        height={window.innerHeight}
-        width={window.innerWidth}
-        className="bg-black"></canvas>
+        height={typeof window !== "undefined" ? window.innerHeight : 927}
+        width={typeof window !== "undefined" ? window.innerWidth : 1920}
+        className="bg-black"
+      />
     </div>
   );
 }

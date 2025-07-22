@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import api from "@/lib/apt";
 
@@ -14,12 +14,13 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function RoomsPage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, token } = useAuth(); // Assuming token is available
   const router = useRouter();
   const [joinCode, setJoinCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState("");
+  const wsRef = useRef<WebSocket | null>(null);
 
   const generateRoomCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -28,6 +29,69 @@ export default function RoomsPage() {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  };
+
+  // WebSocket connection function
+  const connectWebSocket = (roomCode: string, userName: string) => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+
+    // Replace with your actual WebSocket server URL and port
+    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}?token=${token}`;
+    wsRef.current = new WebSocket(wsUrl);
+
+    wsRef.current.onopen = () => {
+      console.log("WebSocket connected");
+      // Send join message
+      if (wsRef.current) {
+        wsRef.current.send(
+          JSON.stringify({
+            name: userName,
+            type: "join",
+            roomId: roomCode,
+            payload: {
+              Xin: 0,
+              Yin: 0,
+              shape: "rectangle",
+            },
+          })
+        );
+      }
+    };
+
+    wsRef.current.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("Received message:", message);
+
+        switch (message.type) {
+          case "user_joined":
+            console.log(message.payload.message);
+            break;
+          case "draw":
+            // Handle drawing events
+            console.log("Draw event:", message.payload);
+            break;
+          case "error":
+            setError(message.message);
+            break;
+          default:
+            console.log("Unknown message type:", message.type);
+        }
+      } catch (err) {
+        console.error("Error parsing WebSocket message:", err);
+      }
+    };
+
+    wsRef.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setError("WebSocket connection error");
+    };
+
+    wsRef.current.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
   };
 
   async function handleRoomCreate() {
@@ -43,6 +107,14 @@ export default function RoomsPage() {
       if (response.status === 201) {
         setIsCreating(false);
         setJoinCode(roomCode);
+
+        // Connect to WebSocket after room creation
+        // You might want to get the user's name from auth context or ask for it
+        const userName = "User"; // Replace with actual username
+        connectWebSocket(roomCode, userName);
+
+        // Navigate to room
+        router.push(`/rooms/${roomCode}`);
       } else {
         throw new Error("Unexpected response status");
       }
@@ -65,6 +137,11 @@ export default function RoomsPage() {
     try {
       const response = await api.post("/room", { slug: joinCode, type: "join" });
       console.log(response);
+
+      // Connect to WebSocket after successful join
+      const userName = "User"; // Replace with actual username
+      connectWebSocket(joinCode.toUpperCase(), userName);
+
       router.push(`/rooms/${joinCode.toUpperCase()}`);
     } catch (error) {
       console.error("Error joining room:", error);
@@ -74,11 +151,41 @@ export default function RoomsPage() {
     }
   }
 
+  // Function to send draw messages (call this from your drawing component)
+  const sendDrawMessage = (drawData: {
+    Xin: number;
+    Yin: number;
+    Xout?: number;
+    Yout?: number;
+    radius?: number;
+    shape: "rectangle" | "circle";
+  }) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(
+        JSON.stringify({
+          name: "User", // Replace with actual username
+          type: "draw",
+          roomId: joinCode,
+          payload: drawData,
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/signin");
     }
   }, [isAuthenticated, isLoading, router]);
+
+  // Cleanup WebSocket on unmount
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -133,7 +240,7 @@ export default function RoomsPage() {
                 disabled={isCreating}
                 variant="outline"
                 className="w-full border-white/20 text-black hover:bg-white/10 hover:text-white">
-                {isCreating ? "Creating Room" : " Create Room"}
+                {isCreating ? "Creating Room" : "Create Room"}
               </Button>
 
               <Button
