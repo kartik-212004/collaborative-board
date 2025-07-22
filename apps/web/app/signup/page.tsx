@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import axios from "axios";
 import { Pencil, Eye, EyeOff } from "lucide-react";
@@ -25,6 +25,12 @@ export default function SignUpPage() {
     password: "",
     photo: "",
   });
+
+  useEffect(() => {
+    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => ws.close();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
