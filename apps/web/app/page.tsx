@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Users, Zap, Share2 } from "lucide-react";
 
 import AuthButton from "@/components/AuthButton";
+import { Demo } from "@/components/Demo";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
@@ -42,29 +43,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="relative mx-auto max-w-5xl">
-            <div className="relative overflow-hidden rounded-3xl border border-white/30 bg-gradient-to-br from-white/10 to-white/5 p-6 shadow-2xl backdrop-blur-sm">
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex space-x-2">
-                  <div className="h-3 w-3 rounded-full bg-red-400"></div>
-                  <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-                  <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                </div>
-                <div className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/70">whiteboard.app</div>
-              </div>
-
-              <div className="relative overflow-hidden rounded-xl border border-white/20 bg-white p-4">
-                <img
-                  src="/draw.jpg"
-                  alt="Whiteboard drawing example"
-                  className="h-80 w-full rounded-lg object-cover shadow-lg"
-                />
-              </div>
-
-              <div className="absolute left-1/3 top-1/2 h-4 w-4 rounded-full bg-blue-500 shadow-lg"></div>
-              <div className="absolute right-1/4 top-3/4 h-4 w-4 rounded-full bg-green-500 shadow-lg"></div>
-            </div>
-          </div>
+          <Demo />
         </div>
       </section>
 
