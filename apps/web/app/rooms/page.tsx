@@ -36,12 +36,13 @@ export default function RoomsPage() {
 
     try {
       const roomCode = generateRoomCode();
-      setJoinCode(roomCode);
+
       const response = await api.post("/room", { slug: roomCode, type: "create" });
       console.log(response);
 
       if (response.status === 201) {
         setIsCreating(false);
+        setJoinCode(roomCode);
       } else {
         throw new Error("Unexpected response status");
       }
@@ -62,8 +63,6 @@ export default function RoomsPage() {
     setIsJoining(true);
 
     try {
-      const token = localStorage.getItem("authToken");
-
       const response = await api.post("/room", { slug: joinCode, type: "join" });
       console.log(response);
       router.push(`/rooms/${joinCode.toUpperCase()}`);

@@ -35,6 +35,9 @@ router.post("/", async (req, res) => {
       success: true,
       message: "Signin successful",
       data: {
+        name: user.name,
+        photo: user.photo,
+        id: user.id,
         email: user.email,
         token: token,
       },

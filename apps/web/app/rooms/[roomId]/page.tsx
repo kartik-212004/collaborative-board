@@ -10,6 +10,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
+
   const { roomId } = use(params);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -52,6 +53,10 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       console.error("Error:", err);
     };
 
+    socketRef.current.onmessage = (data) => {
+      console.log("hello");
+    };
+
     return () => {
       // socketRef.current?.close();
     };
@@ -65,7 +70,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     clicked = true;
     Xin = e.clientX;
     Yin = e.clientY;
-    shapeRef.current = select; // Capture shape at mouse down
+    shapeRef.current = select;
   }
 
   function handleMouseUp(e: MouseEvent) {
@@ -78,7 +83,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       Circle.push({ Xin, Yin, radius, startAngle: 0, endAngle: 2 * Math.PI });
       socketRef.current?.send(
         JSON.stringify({
-          name: user?.name,
+          name: user?.name || "lol",
           type: "draw",
           roomId: roomId,
           payload: {
@@ -93,9 +98,10 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     } else if (shapeRef.current === "rectangle") {
       console.log("going to rectangle");
       Square.push({ Xin, Yin, Xout, Yout });
+      console.log(user?.name, user);
       socketRef.current?.send(
         JSON.stringify({
-          name: user?.name,
+          name: user?.name || "lol",
           type: "draw",
           roomId: roomId,
           payload: {
@@ -154,6 +160,11 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     canvas?.addEventListener("mousedown", handleMouseDown);
     canvas?.addEventListener("mouseup", handleMouseUp);
     canvas?.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+    };
   });
   return (
     <div className="relative bg-black">

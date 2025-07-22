@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 interface User {
   email: string;
-  name?: string;
+  name: string;
   id?: string;
 }
 
@@ -26,16 +26,16 @@ export function useAuth(): AuthState & {
     isLoading: true,
   });
 
-  // Initialize auth state from localStorage
   useEffect(() => {
     try {
       const token = localStorage.getItem("authToken");
       const userEmail = localStorage.getItem("userEmail");
+      const userName = localStorage.getItem("userName");
 
-      if (token && userEmail) {
+      if (token && userEmail && userName) {
         setAuthState({
           token,
-          user: { email: userEmail },
+          user: { email: userEmail, name: userName },
           isAuthenticated: true,
           isLoading: false,
         });
@@ -58,9 +58,8 @@ export function useAuth(): AuthState & {
     try {
       localStorage.setItem("authToken", token);
       localStorage.setItem("userEmail", user.email);
-      if (user.name) {
-        localStorage.setItem("userName", user.name);
-      }
+      localStorage.setItem("userName", user.name);
+      console.log(user.name);
 
       setAuthState({
         token,
