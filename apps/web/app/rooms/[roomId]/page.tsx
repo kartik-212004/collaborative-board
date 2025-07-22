@@ -99,7 +99,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
           timestamp: new Date().getTime(),
         },
       };
-      console.log("Sending clear message:", message);
       socketRef.current.send(JSON.stringify(message));
     }
   };
@@ -121,11 +120,9 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
       return;
     }
 
-    console.log("Connecting to WebSocket...");
     socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
 
     socketRef.current.onopen = () => {
-      console.log("WebSocket Connected");
       setIsConnected(true);
 
       if (socketRef.current && user?.name) {
@@ -139,7 +136,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             shape: "rectangle" as const,
           },
         };
-        console.log("Sending join message:", joinMessage);
         socketRef.current.send(JSON.stringify(joinMessage));
       }
     };
@@ -150,20 +146,15 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     };
 
     socketRef.current.onclose = (event) => {
-      console.log("WebSocket Closed:", event.code, event.reason);
       setIsConnected(false);
     };
 
     socketRef.current.onmessage = (event) => {
-      console.log("Received message:", event.data);
-
       try {
         const message: MessageType = JSON.parse(event.data);
-        console.log("Parsed message:", message);
 
         if (message.type === "draw") {
           const payload = message.payload;
-          console.log("Processing draw message:", payload);
 
           if (payload.shape === "rectangle" && payload.Xout !== undefined && payload.Yout !== undefined) {
             shapesRef.current.squares.push({
@@ -182,8 +173,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
 
           redrawCanvas();
         } else if (message.type === "clear") {
-          console.log("Received clear message");
-
           shapesRef.current.squares = [];
           shapesRef.current.circles = [];
 
@@ -191,9 +180,7 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
           }
         } else if (message.type === "user_joined") {
-          console.log("User joined:", message.payload.message);
         } else if (message.type === "error") {
-          console.error("Server error:", message.payload.message);
         }
       } catch (error) {
         console.error("Error parsing message:", error);
@@ -201,7 +188,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     };
 
     return () => {
-      console.log("Cleaning up WebSocket connection");
       if (socketRef.current) {
         socketRef.current.close();
       }
@@ -217,7 +203,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     drawingStateRef.current.clicked = true;
     drawingStateRef.current.Xin = coords.x;
     drawingStateRef.current.Yin = coords.y;
-    console.log("Mouse down at:", coords);
   }
 
   function handleMouseUp(e: MouseEvent) {
@@ -231,7 +216,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
     const { Xin, Yin, Xout, Yout, radius } = drawingStateRef.current;
 
     if (shapeRef.current === "circle") {
-      console.log("Sending circle draw message");
       shapesRef.current.circles.push({ Xin, Yin, radius });
 
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -247,11 +231,9 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             timestamp: new Date().getTime(),
           },
         };
-        console.log("Sending circle message:", message);
         socketRef.current.send(JSON.stringify(message));
       }
     } else if (shapeRef.current === "rectangle") {
-      console.log("Sending rectangle draw message");
       shapesRef.current.squares.push({ Xin, Yin, Xout, Yout });
 
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -268,7 +250,6 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
             timestamp: new Date().getTime(),
           },
         };
-        console.log("Sending rectangle message:", message);
         socketRef.current.send(JSON.stringify(message));
       }
     }
