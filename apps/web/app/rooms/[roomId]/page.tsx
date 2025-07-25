@@ -17,6 +17,12 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
   const { isAuthenticated, user, isLoading } = useAuth();
   const shapeRef = useRef<"rectangle" | "circle">(select);
 
+  useEffect(() => {
+    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => ws.close();
+  }, []);
+
   const shapesRef = useRef<{
     squares: { Yin: number; Xin: number; Xout: number; Yout: number }[];
     circles: { Yin: number; Xin: number; radius: number }[];

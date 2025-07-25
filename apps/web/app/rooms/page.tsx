@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function RoomsPage() {
-  const { isAuthenticated, isLoading, token } = useAuth(); // Assuming token is available
+  const { isAuthenticated, isLoading, token } = useAuth();
   const router = useRouter();
   const [joinCode, setJoinCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -31,19 +31,16 @@ export default function RoomsPage() {
     return result;
   };
 
-  // WebSocket connection function
   const connectWebSocket = (roomCode: string, userName: string) => {
     if (wsRef.current) {
       wsRef.current.close();
     }
 
-    // Replace with your actual WebSocket server URL and port
     const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}?token=${token}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {
       console.log("WebSocket connected");
-      // Send join message
       if (wsRef.current) {
         wsRef.current.send(
           JSON.stringify({
@@ -70,7 +67,6 @@ export default function RoomsPage() {
             console.log(message.payload.message);
             break;
           case "draw":
-            // Handle drawing events
             console.log("Draw event:", message.payload);
             break;
           case "error":
@@ -82,11 +78,6 @@ export default function RoomsPage() {
       } catch (err) {
         console.error("Error parsing WebSocket message:", err);
       }
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setError("WebSocket connection error");
     };
 
     wsRef.current.onclose = () => {
@@ -108,12 +99,9 @@ export default function RoomsPage() {
         setIsCreating(false);
         setJoinCode(roomCode);
 
-        // Connect to WebSocket after room creation
-        // You might want to get the user's name from auth context or ask for it
-        const userName = "User"; // Replace with actual username
+        const userName = "User";
         connectWebSocket(roomCode, userName);
 
-        // Navigate to room
         router.push(`/rooms/${roomCode}`);
       } else {
         throw new Error("Unexpected response status");
@@ -138,8 +126,7 @@ export default function RoomsPage() {
       const response = await api.post("/room", { slug: joinCode, type: "join" });
       console.log(response);
 
-      // Connect to WebSocket after successful join
-      const userName = "User"; // Replace with actual username
+      const userName = "User";
       connectWebSocket(joinCode.toUpperCase(), userName);
 
       router.push(`/rooms/${joinCode.toUpperCase()}`);
@@ -151,7 +138,6 @@ export default function RoomsPage() {
     }
   }
 
-  // Function to send draw messages (call this from your drawing component)
   const sendDrawMessage = (drawData: {
     Xin: number;
     Yin: number;
@@ -163,7 +149,7 @@ export default function RoomsPage() {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
-          name: "User", // Replace with actual username
+          name: "User",
           type: "draw",
           roomId: joinCode,
           payload: drawData,
@@ -178,7 +164,6 @@ export default function RoomsPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Cleanup WebSocket on unmount
   useEffect(() => {
     return () => {
       if (wsRef.current) {
@@ -254,9 +239,7 @@ export default function RoomsPage() {
         </Card>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-white/60">
-            Generate a code to create a new room, or enter an existing code to join
-          </p>
+          <p className="text-sm text-white/60">server might take 10-15 seconds to spin up</p>
         </div>
       </div>
     </div>
