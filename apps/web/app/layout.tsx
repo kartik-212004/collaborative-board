@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "excledraw",
-  description: "bhatt ji ka app",
+  title: "CollabDraw",
+  description: "Real-time collaborative drawing board",
 };
 
 export default function RootLayout({
@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="dark">
+      <body className="bg-background text-foreground">{children}</body>
     </html>
   );
 }

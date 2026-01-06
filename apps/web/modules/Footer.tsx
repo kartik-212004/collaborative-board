@@ -5,7 +5,7 @@ import { Pencil } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-black px-4 py-8 text-white sm:py-12">
+    <footer className="bg-background border-t border-white/10 px-4 py-8 text-white sm:py-12">
       <div className="container mx-auto max-w-6xl">
         {/* Brand Section - Full width on mobile */}
         <div className="mb-8">

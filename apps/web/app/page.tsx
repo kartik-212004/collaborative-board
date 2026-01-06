@@ -2,16 +2,17 @@ import Link from "next/link";
 
 import { ArrowRight, Users, Zap, Share2 } from "lucide-react";
 
-import AuthButton from "@/components/AuthButton";
-import { Demo } from "@/components/Demo";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import AuthButton from "@/modules/AuthButton";
+import { Demo } from "@/modules/Demo";
+import Footer from "@/modules/Footer";
+import Header from "@/modules/Header";
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="bg-background min-h-screen">
       <Header />
       <section className="px-4 py-20">
         <div className="container mx-auto max-w-4xl text-center">

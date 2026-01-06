@@ -1,4 +1,4 @@
-import HeroVideoDialog from "@/components/magicui/hero-video-dialog";
+import HeroVideoDialog from "@/modules/hero-video-dialog";
 
 const draw = "/demo.jpeg";
 const video = "/video.mp4";

@@ -93,72 +93,70 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link href="/" className="mb-6 inline-flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-              <Pencil className="h-4 w-4 text-black" />
-            </div>
-            <span className="text-xl font-bold text-white">WhiteBoard</span>
-          </Link>
-        </div>
+    <div className="bg-background flex min-h-screen items-center justify-center px-4 py-10 text-white">
+      <div className="w-full max-w-lg space-y-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-medium text-white/80">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black">
+            <Pencil className="h-4 w-4" />
+          </span>
+          WhiteBoard
+        </Link>
 
-        <Card className="border-white/20 bg-black">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-white">Create your account</CardTitle>
-            <CardDescription className="text-white/70">
-              Join thousands of teams collaborating on WhiteBoard
-            </CardDescription>
+        <Card className="border-white/10 bg-white/5 backdrop-blur">
+          <CardHeader className="space-y-1 text-left">
+            <CardTitle className="text-2xl font-semibold text-white">Create your account</CardTitle>
+            <CardDescription className="text-white/70">A simple start—just your basics.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-5">
             {error && (
-              <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+              <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="mb-4 rounded-md border border-green-500/20 bg-green-500/10 p-3 text-sm text-green-400">
+              <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-200">
                 {success}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-white">
+                <Label htmlFor="name" className="text-white/90">
                   Full Name
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="Ada Lovelace"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white"
+                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">
+                <Label htmlFor="email" className="text-white/90">
                   Email
                 </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="you@company.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white"
+                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">
+                <Label htmlFor="password" className="text-white/90">
                   Password
                 </Label>
                 <div className="relative">
@@ -166,10 +164,10 @@ export default function SignUpPage() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password (min. 6 characters)"
+                    placeholder="Minimum 6 characters"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white"
+                    className="h-8 rounded-md border border-white/20 bg-white px-2 pr-12 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
                     required
                     minLength={6}
                   />
@@ -177,39 +175,35 @@ export default function SignUpPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-1 top-1/2 h-8 -translate-y-1/2 px-2 text-black/60 hover:bg-black/5"
                     onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-white/50" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-white/50" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
                 {formData.password && formData.password.length < 6 && (
-                  <p className="text-xs text-red-400">Password must be at least 6 characters long</p>
+                  <p className="text-xs text-red-300">Password must be at least 6 characters long</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="photo" className="text-white">
+                <Label htmlFor="photo" className="text-white/90">
                   Profile Photo URL (Optional)
                 </Label>
                 <Input
                   id="photo"
                   name="photo"
                   type="url"
-                  placeholder="Enter photo URL (e.g., https://example.com/photo.jpg)"
+                  placeholder="https://example.com/photo.jpg"
                   value={formData.photo}
                   onChange={handleInputChange}
-                  className="border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white"
+                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
                 />
                 {formData.photo && (
                   <div className="mt-2 flex justify-center">
                     <img
                       src={formData.photo}
                       alt="Profile preview"
-                      className="h-20 w-20 rounded-full border-2 border-white/20 object-cover"
+                      className="h-14 w-14 rounded-full border border-white/20 object-cover"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
@@ -223,31 +217,24 @@ export default function SignUpPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-white text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md bg-white text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
                 size="lg"
                 disabled={isLoading}>
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-white/70">Already have an account? </span>
-              <Link href="/signin" className="font-medium text-white hover:text-white/80 hover:underline">
+            <div className="flex items-center justify-between text-sm text-white/70">
+              <span>Already have an account?</span>
+              <Link href="/signin" className="font-medium text-white hover:text-white/80">
                 Sign in
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        <p className="mt-4 text-center text-xs text-white/50">
-          By creating an account, you agree to our{" "}
-          <Link href="#" className="underline hover:text-white/70">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="#" className="underline hover:text-white/70">
-            Privacy Policy
-          </Link>
+        <p className="text-center text-xs text-white/50">
+          By continuing you agree to our Terms and Privacy Policy.
         </p>
       </div>
     </div>
