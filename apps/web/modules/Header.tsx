@@ -49,12 +49,12 @@ export default function Header() {
               <Link href="/signin">
                 <Button
                   variant="ghost"
-                  className="text-white transition-colors hover:bg-white/10 hover:text-white">
+                  className="px-2 text-white transition-colors hover:bg-white/10 hover:text-white">
                   Sign In
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button className="bg-white text-black transition-colors hover:bg-gray-100">
+                <Button className="bg-white px-2 text-black transition-colors hover:bg-gray-100">
                   Get Started
                 </Button>
               </Link>

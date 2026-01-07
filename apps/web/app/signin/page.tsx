@@ -59,6 +59,7 @@ export default function SignInPage() {
           email: response.data.data.email,
           name: response.data.data.name,
           id: response.data.data.id,
+          photo: response.data.data.photo,
         });
 
         setSuccess("Sign in successful! Redirecting...");

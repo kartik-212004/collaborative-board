@@ -113,7 +113,7 @@ export interface HistoryState {
 export interface ConnectedUser {
   id: string;
   name: string;
-  color: string;
+  photo?: string;
   isDrawing: boolean;
 }
 
