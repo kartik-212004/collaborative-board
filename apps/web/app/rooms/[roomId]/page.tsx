@@ -346,19 +346,16 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         startPoint={drawingState.startPoint}
       />
 
-      {/* Top Header */}
       <div className="pointer-events-none absolute left-4 right-4 top-4 z-10">
-        {/* Left - Toggle button */}
         <div className="pointer-events-auto absolute left-0">
           <button
             type="button"
             onClick={() => setShowControls(!showControls)}
-            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-10 w-10 items-center justify-center rounded-lg border shadow-lg">
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-8 w-8 items-center justify-center rounded-lg border shadow-lg">
             {showControls ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
           </button>
         </div>
 
-        {/* Center - Toolbar */}
         <div className="pointer-events-auto flex justify-center">
           <div className="flex flex-col items-center gap-3">
             <Toolbar currentTool={canvasState.tool} onToolChange={setTool} />
@@ -366,19 +363,17 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
           </div>
         </div>
 
-        {/* Right - Header controls */}
         <div className="pointer-events-auto absolute right-0 top-0 flex items-center gap-2">
           <button
             type="button"
             onClick={() => setShowPresence(!showPresence)}
-            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-10 w-10 items-center justify-center rounded-lg border shadow-lg">
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-8 w-8 items-center justify-center rounded-lg border shadow-lg">
             {showPresence ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
           </button>
           <CanvasHeader roomId={roomId} isConnected={isConnected} connectedUsers={connectedUsers.length} />
         </div>
       </div>
 
-      {/* Left sidebar controls */}
       {showControls && (
         <div className="pointer-events-none absolute left-4 top-20 z-10">
           <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
@@ -458,7 +453,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
           </div>
         </div>
       )}
-      {/* Bottom Left - Zoom Controls */}
       <div className="pointer-events-none absolute bottom-4 left-4 z-10">
         <div className="pointer-events-auto">
           <ZoomControls
@@ -474,14 +468,12 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         </div>
       </div>
 
-      {/* Bottom Right - Footer */}
       <div className="pointer-events-none absolute bottom-4 right-4 z-10">
         <div className="pointer-events-auto">
           <CanvasFooter />
         </div>
       </div>
 
-      {/* Right sidebar for presence */}
       {showPresence && (
         <div className="pointer-events-none absolute right-4 top-20 z-10">
           <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
