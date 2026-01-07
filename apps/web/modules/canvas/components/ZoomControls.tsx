@@ -31,7 +31,6 @@ export function ZoomControls({
   return (
     <TooltipProvider>
       <div className="flex items-center gap-2">
-        {/* Zoom Controls */}
         <div className="border-canvas-border bg-canvas-toolbar flex items-center gap-0.5 rounded-lg border p-1 shadow-lg backdrop-blur-sm">
           <Tooltip>
             <TooltipTrigger>
@@ -76,7 +75,6 @@ export function ZoomControls({
           </Tooltip>
         </div>
 
-        {/* Undo/Redo Controls */}
         <div className="border-canvas-border bg-canvas-toolbar flex items-center gap-0.5 rounded-lg border p-1 shadow-lg backdrop-blur-sm">
           <Tooltip>
             <TooltipTrigger>

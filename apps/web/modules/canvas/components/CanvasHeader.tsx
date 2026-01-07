@@ -30,7 +30,6 @@ export function CanvasHeader({ roomId, isConnected, connectedUsers = 1, roomName
   return (
     <TooltipProvider>
       <div className="flex items-center gap-3">
-        {/* Connection Status */}
         <div className="border-canvas-border bg-canvas-toolbar hidden items-center gap-2 rounded-lg border px-3 py-1.5 shadow-lg sm:flex">
           <div
             className={`h-2 w-2 rounded-full ${isConnected ? "animate-pulse bg-emerald-400" : "bg-rose-500"}`}
@@ -40,7 +39,6 @@ export function CanvasHeader({ roomId, isConnected, connectedUsers = 1, roomName
           </span>
         </div>
 
-        {/* Room ID Copy */}
         <Tooltip>
           <TooltipTrigger>
             <Button

@@ -7,7 +7,6 @@ export default function Footer() {
   return (
     <footer className="bg-background border-t border-white/10 px-4 py-8 text-white sm:py-12">
       <div className="container mx-auto max-w-6xl">
-        {/* Brand Section - Full width on mobile */}
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-center space-x-2 sm:justify-start">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
@@ -20,9 +19,7 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Links Grid - 3 columns on mobile, 4 on larger screens */}
         <div className="grid grid-cols-3 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Product Section */}
           <div>
             <h4 className="mb-4 text-center text-sm font-semibold sm:text-left sm:text-base">Product</h4>
             <ul className="space-y-3 text-center text-xs text-white/70 sm:text-left sm:text-sm">
@@ -50,7 +47,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company Section */}
           <div>
             <h4 className="mb-4 text-center text-sm font-semibold sm:text-left sm:text-base">Company</h4>
             <ul className="space-y-3 text-center text-xs text-white/70 sm:text-left sm:text-sm">
@@ -78,7 +74,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support Section */}
           <div>
             <h4 className="mb-4 text-center text-sm font-semibold sm:text-left sm:text-base">Support</h4>
             <ul className="space-y-3 text-center text-xs text-white/70 sm:text-left sm:text-sm">
@@ -107,7 +102,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright Section */}
         <div className="mt-6 border-t border-white/10 pt-6 text-center text-white/70 sm:mt-8 sm:pt-8">
           <p className="text-sm sm:text-base">&copy; 2025 WhiteBoard. All rights reserved.</p>
         </div>

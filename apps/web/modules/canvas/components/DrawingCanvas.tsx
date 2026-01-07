@@ -17,6 +17,7 @@ import {
 } from "../types";
 
 type ResizeHandle = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
+type LineEndpointHandle = "start" | "end";
 
 interface DrawingCanvasProps {
   shapes: Shape[];
@@ -104,6 +105,13 @@ export function DrawingCanvas({
     startPoint: Point;
     originalBounds: { x: number; y: number; width: number; height: number };
     shapeId: string;
+  } | null>(null);
+
+  const [activeEndpointHandle, setActiveEndpointHandle] = useState<LineEndpointHandle | null>(null);
+  const endpointDragRef = useRef<{
+    handle: LineEndpointHandle;
+    shapeId: string;
+    originalPoints: Point[];
   } | null>(null);
 
   const getCanvasCoordinates = useCallback(
@@ -323,34 +331,63 @@ export function DrawingCanvas({
       if (isSelected && !isPreview) {
         ctx.strokeStyle = "#6366f1";
         ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]);
 
-        const bounds = getShapeBounds(shape);
-        ctx.strokeRect(bounds.x - 4, bounds.y - 4, bounds.width + 8, bounds.height + 8);
-        ctx.setLineDash([]);
+        if (shape.type === "arrow" || shape.type === "line") {
+          const pointsShape = shape as ArrowShape | LineShape;
+          if (pointsShape.points.length >= 2) {
+            const startPoint = pointsShape.points[0];
+            const endPoint = pointsShape.points[pointsShape.points.length - 1];
+            const handleRadius = 6;
 
-        const handleSize = 8;
-        const handles = [
-          { x: bounds.x - 4, y: bounds.y - 4 },
-          { x: bounds.x + bounds.width / 2, y: bounds.y - 4 },
-          { x: bounds.x + bounds.width + 4, y: bounds.y - 4 },
-          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height / 2 },
-          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height + 4 },
-          { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 },
-          { x: bounds.x - 4, y: bounds.y + bounds.height + 4 },
-          { x: bounds.x - 4, y: bounds.y + bounds.height / 2 },
-        ];
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(startPoint.x, startPoint.y);
+            ctx.lineTo(endPoint.x, endPoint.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-        ctx.fillStyle = "#ffffff";
-        ctx.strokeStyle = "#6366f1";
-        ctx.lineWidth = 2;
+            ctx.fillStyle = "#ffffff";
+            ctx.strokeStyle = "#6366f1";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(startPoint.x, startPoint.y, handleRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
 
-        handles.forEach((handle) => {
-          ctx.beginPath();
-          ctx.rect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
-          ctx.fill();
-          ctx.stroke();
-        });
+            ctx.beginPath();
+            ctx.arc(endPoint.x, endPoint.y, handleRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+        } else {
+          ctx.setLineDash([5, 5]);
+          const bounds = getShapeBounds(shape);
+          ctx.strokeRect(bounds.x - 4, bounds.y - 4, bounds.width + 8, bounds.height + 8);
+          ctx.setLineDash([]);
+
+          const handleSize = 8;
+          const handles = [
+            { x: bounds.x - 4, y: bounds.y - 4 },
+            { x: bounds.x + bounds.width / 2, y: bounds.y - 4 },
+            { x: bounds.x + bounds.width + 4, y: bounds.y - 4 },
+            { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height / 2 },
+            { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height + 4 },
+            { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 },
+            { x: bounds.x - 4, y: bounds.y + bounds.height + 4 },
+            { x: bounds.x - 4, y: bounds.y + bounds.height / 2 },
+          ];
+
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "#6366f1";
+          ctx.lineWidth = 2;
+
+          handles.forEach((handle) => {
+            ctx.beginPath();
+            ctx.rect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
+            ctx.fill();
+            ctx.stroke();
+          });
+        }
       }
 
       ctx.restore();
@@ -401,6 +438,42 @@ export function DrawingCanvas({
   };
 
   const isPointInShape = (point: Point, shape: Shape): boolean => {
+    if (shape.type === "arrow" || shape.type === "line") {
+      const pointsShape = shape as ArrowShape | LineShape;
+      if (pointsShape.points.length < 2) return false;
+
+      const threshold = Math.max(10, shape.strokeWidth * 2);
+
+      for (let i = 0; i < pointsShape.points.length - 1; i++) {
+        const p1 = pointsShape.points[i];
+        const p2 = pointsShape.points[i + 1];
+
+        const lineLengthSquared = Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2);
+
+        if (lineLengthSquared === 0) {
+          const dist = Math.sqrt(Math.pow(point.x - p1.x, 2) + Math.pow(point.y - p1.y, 2));
+          if (dist <= threshold) return true;
+          continue;
+        }
+
+        const t = Math.max(
+          0,
+          Math.min(
+            1,
+            ((point.x - p1.x) * (p2.x - p1.x) + (point.y - p1.y) * (p2.y - p1.y)) / lineLengthSquared
+          )
+        );
+
+        const projX = p1.x + t * (p2.x - p1.x);
+        const projY = p1.y + t * (p2.y - p1.y);
+
+        const dist = Math.sqrt(Math.pow(point.x - projX, 2) + Math.pow(point.y - projY, 2));
+        if (dist <= threshold) return true;
+      }
+
+      return false;
+    }
+
     const bounds = getShapeBounds(shape);
     return (
       point.x >= bounds.x &&
@@ -435,6 +508,25 @@ export function DrawingCanvas({
         return handle.pos;
       }
     }
+    return null;
+  };
+
+  const getEndpointHandleAtPoint = (point: Point, shape: Shape): LineEndpointHandle | null => {
+    if (shape.type !== "arrow" && shape.type !== "line") return null;
+
+    const pointsShape = shape as ArrowShape | LineShape;
+    if (pointsShape.points.length < 2) return null;
+
+    const handleRadius = 10;
+    const startPoint = pointsShape.points[0];
+    const endPoint = pointsShape.points[pointsShape.points.length - 1];
+
+    const distToStart = Math.sqrt(Math.pow(point.x - startPoint.x, 2) + Math.pow(point.y - startPoint.y, 2));
+    if (distToStart <= handleRadius) return "start";
+
+    const distToEnd = Math.sqrt(Math.pow(point.x - endPoint.x, 2) + Math.pow(point.y - endPoint.y, 2));
+    if (distToEnd <= handleRadius) return "end";
+
     return null;
   };
 
@@ -562,7 +654,24 @@ export function DrawingCanvas({
       if (tool === "select") {
         for (const shapeId of selectedIds) {
           const shape = shapes.find((s) => s.id === shapeId);
-          if (shape) {
+          if (shape && (shape.type === "arrow" || shape.type === "line")) {
+            const endpointHandle = getEndpointHandleAtPoint(coords, shape);
+            if (endpointHandle) {
+              const pointsShape = shape as ArrowShape | LineShape;
+              endpointDragRef.current = {
+                handle: endpointHandle,
+                shapeId: shape.id,
+                originalPoints: [...pointsShape.points],
+              };
+              setActiveEndpointHandle(endpointHandle);
+              return;
+            }
+          }
+        }
+
+        for (const shapeId of selectedIds) {
+          const shape = shapes.find((s) => s.id === shapeId);
+          if (shape && shape.type !== "arrow" && shape.type !== "line") {
             const handle = getResizeHandleAtPoint(coords, shape);
             if (handle) {
               resizeStartRef.current = {
@@ -648,6 +757,30 @@ export function DrawingCanvas({
         return;
       }
 
+      if (tool === "select" && endpointDragRef.current) {
+        const coords = getCanvasCoordinates(e);
+        const { handle, shapeId } = endpointDragRef.current;
+
+        onSetLiveShapes((prevShapes) =>
+          prevShapes.map((shape) => {
+            if (shape.id !== shapeId) return shape;
+            if (shape.type !== "arrow" && shape.type !== "line") return shape;
+
+            const pointsShape = shape as ArrowShape | LineShape;
+            const newPoints = [...pointsShape.points];
+
+            if (handle === "start") {
+              newPoints[0] = coords;
+            } else {
+              newPoints[newPoints.length - 1] = coords;
+            }
+
+            return { ...pointsShape, points: newPoints } as Shape;
+          })
+        );
+        return;
+      }
+
       if (tool === "select" && resizeStartRef.current) {
         const coords = getCanvasCoordinates(e);
         const { handle, startPoint, originalBounds, shapeId } = resizeStartRef.current;
@@ -728,8 +861,12 @@ export function DrawingCanvas({
                 } as Shape;
               case "text": {
                 const textShape = shape as TextShape;
-                const scaleY = newHeight / originalBounds.height;
-                const newFontSize = Math.max(8, Math.round(textShape.fontSize * scaleY));
+                const deltaY = newHeight - originalBounds.height;
+                const scaleFactor = 0.1;
+                const newFontSize = Math.max(
+                  8,
+                  Math.min(200, Math.round(textShape.fontSize + deltaY * scaleFactor))
+                );
                 return {
                   ...textShape,
                   x: newX,
@@ -777,6 +914,8 @@ export function DrawingCanvas({
               case "diamond":
                 return { ...shape, x: shape.x + dx, y: shape.y + dy } as Shape;
               case "ellipse":
+                return { ...shape, x: shape.x + dx, y: shape.y + dy } as Shape;
+              case "text":
                 return { ...shape, x: shape.x + dx, y: shape.y + dy } as Shape;
               case "arrow":
               case "line":
@@ -848,6 +987,12 @@ export function DrawingCanvas({
     if (isPanningRef.current) {
       isPanningRef.current = false;
       lastPanPointRef.current = null;
+      return;
+    }
+    if (tool === "select" && endpointDragRef.current) {
+      endpointDragRef.current = null;
+      setActiveEndpointHandle(null);
+      onCommitShapes(shapes);
       return;
     }
     if (tool === "select" && resizeStartRef.current) {
@@ -933,6 +1078,9 @@ export function DrawingCanvas({
   const getCursor = () => {
     if (activeHandle) {
       return getCursorForHandle(activeHandle);
+    }
+    if (activeEndpointHandle) {
+      return "move";
     }
     switch (tool) {
       case "hand":
