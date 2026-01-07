@@ -26,6 +26,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
   const [isConnected, setIsConnected] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState(1);
   const [strokeSize, setStrokeSize] = useState(2);
+  const [textSize, setTextSize] = useState<"xs" | "md" | "lg" | "xxl">("md");
   const [showControls, setShowControls] = useState(true);
   const { isAuthenticated, user, isLoading } = useAuth();
 
@@ -51,6 +52,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     updateShape,
     deleteShape,
     deleteSelectedShapes,
+    updateSelectedShapes,
     clearCanvas,
     setShapes,
     setSelection,
@@ -198,7 +200,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
   );
 
   return (
-    <div className="bg-background relative h-screen w-screen overflow-hidden">
+    <div className="bg-canvas-background relative h-screen w-screen overflow-hidden">
       {/* Drawing Canvas */}
       <DrawingCanvas
         shapes={canvasState.shapes}
@@ -210,11 +212,13 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         strokeWidth={canvasState.strokeWidth}
         fillColor={canvasState.fillColor}
         opacity={canvasState.opacity}
+        textSize={textSize}
         selectedIds={canvasState.selectedIds}
         onStartDrawing={startDrawing}
         onUpdateDrawing={updateDrawing}
         onFinishDrawing={finishDrawing}
         onAddShape={handleAddShape}
+        onUpdateShape={updateShape}
         onSelectShape={selectShape}
         onSetSelection={setSelection}
         onSetLiveShapes={setLiveShapes}
@@ -295,7 +299,13 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                     <button
                       key={color}
                       type="button"
-                      onClick={() => setStrokeColor(color)}
+                      onClick={() => {
+                        setStrokeColor(color);
+                        // Also update selected shapes' color
+                        if (canvasState.selectedIds.length > 0) {
+                          updateSelectedShapes({ strokeColor: color });
+                        }
+                      }}
                       className={`h-6 w-6 rounded-md border-2 transition-all ${
                         canvasState.strokeColor === color
                           ? "scale-110 border-white"
@@ -303,6 +313,27 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                       }`}
                       style={{ backgroundColor: color }}
                     />
+                  ))}
+                </div>
+              </div>
+              {/* Text Size */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-white/90">Text Size</span>
+                </div>
+                <div className="flex gap-1">
+                  {(["xs", "md", "lg", "xxl"] as const).map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setTextSize(size)}
+                      className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium uppercase transition-all ${
+                        textSize === size
+                          ? "border-white bg-white text-black"
+                          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                      }`}>
+                      {size}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -334,20 +365,19 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
       </div>
 
       {/* Right sidebar for presence */}
-      <div className="pointer-events-none absolute right-4 top-20 z-10">
+      {/* <div className="pointer-events-none absolute right-4 top-20 z-10">
         <div className="bg-background pointer-events-auto w-40 rounded-xl border border-white/10 px-4 py-3 text-white shadow-xl">
           <div className="text-sm font-semibold text-white/90">People</div>
           <div className="mt-2 text-3xl font-bold leading-tight">{connectedUsers}</div>
           <div className="text-xs text-white/50">active {connectedUsers === 1 ? "user" : "users"}</div>
           <div
-            className={`mt-3 inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium ${
-              isConnected ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300"
-            }`}>
+            className={`mt-3 inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium 
+              `}>
             <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-400" : "bg-rose-400"}`} />
             {isConnected ? "Online" : "Offline"}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

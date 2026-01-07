@@ -16,7 +16,6 @@ import {
   generateShapeId,
 } from "../types";
 
-// Resize handle positions
 type ResizeHandle = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
 
 interface DrawingCanvasProps {
@@ -29,11 +28,13 @@ interface DrawingCanvasProps {
   strokeWidth: number;
   fillColor: string;
   opacity: number;
+  textSize: "xs" | "md" | "lg" | "xxl";
   selectedIds: string[];
   onStartDrawing: (point: Point) => void;
   onUpdateDrawing: (point: Point, shape: Shape | null) => void;
   onFinishDrawing: () => void;
   onAddShape: (shape: Shape) => void;
+  onUpdateShape: (shapeId: string, updates: Partial<Shape>) => void;
   onSelectShape: (shapeId: string, addToSelection?: boolean) => void;
   onSetSelection: (shapeIds: string[]) => void;
   onSetLiveShapes: (updater: (prev: Shape[]) => Shape[]) => void;
@@ -56,11 +57,13 @@ export function DrawingCanvas({
   strokeWidth,
   fillColor,
   opacity,
+  textSize,
   selectedIds,
   onStartDrawing,
   onUpdateDrawing,
   onFinishDrawing,
   onAddShape,
+  onUpdateShape,
   onSelectShape,
   onSetSelection,
   onSetLiveShapes,
@@ -92,6 +95,9 @@ export function DrawingCanvas({
     y: number;
     text: string;
     isEditing: boolean;
+    // For editing existing text or shape labels
+    editingShapeId?: string;
+    editingType?: "text" | "label";
   } | null>(null);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -149,6 +155,22 @@ export function DrawingCanvas({
             ctx.fill();
           }
           ctx.stroke();
+
+          // Draw label inside rectangle
+          if (rect.label) {
+            const labelFontSize = rect.labelFontSize || 16;
+            ctx.font = `${labelFontSize}px sans-serif`;
+            ctx.fillStyle = rect.strokeColor;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const lines = rect.label.split("\n");
+            const lineHeight = labelFontSize * 1.2;
+            const totalHeight = lines.length * lineHeight;
+            const startY = rect.y + rect.height / 2 - totalHeight / 2 + lineHeight / 2;
+            lines.forEach((line, i) => {
+              ctx.fillText(line, rect.x + rect.width / 2, startY + i * lineHeight);
+            });
+          }
           break;
         }
 
@@ -170,6 +192,22 @@ export function DrawingCanvas({
             ctx.fill();
           }
           ctx.stroke();
+
+          // Draw label inside diamond
+          if (diamond.label) {
+            const labelFontSize = diamond.labelFontSize || 16;
+            ctx.font = `${labelFontSize}px sans-serif`;
+            ctx.fillStyle = diamond.strokeColor;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const lines = diamond.label.split("\n");
+            const lineHeight = labelFontSize * 1.2;
+            const totalHeight = lines.length * lineHeight;
+            const startY = cy - totalHeight / 2 + lineHeight / 2;
+            lines.forEach((line, i) => {
+              ctx.fillText(line, cx, startY + i * lineHeight);
+            });
+          }
           break;
         }
 
@@ -190,6 +228,22 @@ export function DrawingCanvas({
             ctx.fill();
           }
           ctx.stroke();
+
+          // Draw label inside ellipse
+          if (ellipse.label) {
+            const labelFontSize = ellipse.labelFontSize || 16;
+            ctx.font = `${labelFontSize}px sans-serif`;
+            ctx.fillStyle = ellipse.strokeColor;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const lines = ellipse.label.split("\n");
+            const lineHeight = labelFontSize * 1.2;
+            const totalHeight = lines.length * lineHeight;
+            const startY = ellipse.y - totalHeight / 2 + lineHeight / 2;
+            lines.forEach((line, i) => {
+              ctx.fillText(line, ellipse.x, startY + i * lineHeight);
+            });
+          }
           break;
         }
 
@@ -536,18 +590,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Handle text tool
-      if (tool === "text") {
-        // Click to create new text
-        setTextInput({
-          x: coords.x,
-          y: coords.y,
-          text: "",
-          isEditing: true,
-        });
-        return;
-      }
-
       // Handle selection
       if (tool === "select") {
         // First check if clicking on a resize handle of a selected shape
@@ -735,6 +777,18 @@ export function DrawingCanvas({
                   radiusX: newWidth / 2,
                   radiusY: newHeight / 2,
                 } as Shape;
+              case "text": {
+                const textShape = shape as TextShape;
+                // Scale fontSize based on height change
+                const scaleY = newHeight / originalBounds.height;
+                const newFontSize = Math.max(8, Math.round(textShape.fontSize * scaleY));
+                return {
+                  ...textShape,
+                  x: newX,
+                  y: newY,
+                  fontSize: newFontSize,
+                } as Shape;
+              }
               default:
                 return shape;
             }
@@ -962,9 +1016,100 @@ export function DrawingCanvas({
     }
   };
 
+  // Text size mapping
+  const TEXT_SIZE_MAP = {
+    xs: 14,
+    md: 18,
+    lg: 28,
+    xxl: 42,
+  };
+
+  // Calculate text dimensions for a given text and font size
+  const measureTextDimensions = useCallback(
+    (text: string, fontSize: number): { width: number; height: number } => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!ctx) return { width: 100, height: fontSize * 1.2 };
+
+      ctx.font = `${fontSize}px sans-serif`;
+      const lines = text.split("\n");
+      const lineHeight = fontSize * 1.2;
+      const maxWidth = Math.max(...lines.map((line) => ctx.measureText(line).width));
+      const totalHeight = lines.length * lineHeight;
+
+      return { width: maxWidth + 20, height: totalHeight + 20 }; // Add padding
+    },
+    []
+  );
+
   // Handle text input submission
   const handleTextSubmit = useCallback(() => {
-    if (textInput && textInput.text.trim()) {
+    if (!textInput) {
+      return;
+    }
+
+    // Editing existing text shape
+    if (textInput.editingShapeId && textInput.editingType === "text") {
+      if (textInput.text.trim()) {
+        onUpdateShape(textInput.editingShapeId, { text: textInput.text } as Partial<TextShape>);
+      }
+      setTextInput(null);
+      return;
+    }
+
+    // Editing shape label - auto-resize shape if needed
+    if (textInput.editingShapeId && textInput.editingType === "label") {
+      const fontSize = TEXT_SIZE_MAP[textSize];
+      const labelText = textInput.text.trim();
+
+      if (labelText) {
+        const textDimensions = measureTextDimensions(labelText, fontSize);
+        const shape = shapes.find((s) => s.id === textInput.editingShapeId);
+
+        if (shape) {
+          const updates: Partial<Shape> = {
+            label: labelText,
+            labelFontSize: fontSize,
+          };
+
+          // Auto-resize shape if text is larger than shape
+          if (shape.type === "rectangle" || shape.type === "diamond") {
+            const rectShape = shape as RectangleShape | DiamondShape;
+            if (textDimensions.width > rectShape.width) {
+              (updates as any).width = textDimensions.width;
+            }
+            if (textDimensions.height > rectShape.height) {
+              (updates as any).height = textDimensions.height;
+            }
+          } else if (shape.type === "ellipse") {
+            const ellipseShape = shape as EllipseShape;
+            const neededRadiusX = textDimensions.width / 2;
+            const neededRadiusY = textDimensions.height / 2;
+            if (neededRadiusX > ellipseShape.radiusX) {
+              (updates as any).radiusX = neededRadiusX;
+            }
+            if (neededRadiusY > ellipseShape.radiusY) {
+              (updates as any).radiusY = neededRadiusY;
+            }
+          }
+
+          onUpdateShape(textInput.editingShapeId, updates);
+        }
+      } else {
+        // Clear label if empty
+        onUpdateShape(textInput.editingShapeId, {
+          label: undefined,
+          labelFontSize: undefined,
+        });
+      }
+
+      setTextInput(null);
+      return;
+    }
+
+    // Creating new text shape
+    if (textInput.text.trim()) {
+      const fontSize = TEXT_SIZE_MAP[textSize];
       const textShape: TextShape = {
         id: generateShapeId(),
         type: "text",
@@ -975,14 +1120,77 @@ export function DrawingCanvas({
         fillColor,
         opacity,
         text: textInput.text,
-        fontSize: 18,
+        fontSize,
         fontFamily: "sans-serif",
         textAlign: "left",
       };
       onAddShape(textShape);
     }
     setTextInput(null);
-  }, [textInput, strokeColor, strokeWidth, fillColor, opacity, onAddShape]);
+  }, [
+    textInput,
+    strokeColor,
+    strokeWidth,
+    fillColor,
+    opacity,
+    onAddShape,
+    onUpdateShape,
+    textSize,
+    measureTextDimensions,
+    shapes,
+  ]);
+
+  // Handle double-click for text input anywhere on canvas
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const coords = getCanvasCoordinates(e);
+
+      // Check if double-clicking on an existing text shape (to edit it)
+      const clickedTextShape = [...shapes]
+        .reverse()
+        .find((s) => s.type === "text" && isPointInShape(coords, s)) as TextShape | undefined;
+
+      if (clickedTextShape) {
+        const bounds = getShapeBounds(clickedTextShape);
+        setTextInput({
+          x: clickedTextShape.x,
+          y: clickedTextShape.y,
+          text: clickedTextShape.text,
+          isEditing: true,
+          editingShapeId: clickedTextShape.id,
+          editingType: "text",
+        });
+        return;
+      }
+
+      // Check if double-clicking inside a shape (to add/edit label)
+      const clickedShape = [...shapes]
+        .reverse()
+        .find((s) => ["rectangle", "diamond", "ellipse"].includes(s.type) && isPointInShape(coords, s));
+
+      if (clickedShape) {
+        const bounds = getShapeBounds(clickedShape);
+        setTextInput({
+          x: bounds.x + bounds.width / 2,
+          y: bounds.y + bounds.height / 2,
+          text: clickedShape.label || "",
+          isEditing: true,
+          editingShapeId: clickedShape.id,
+          editingType: "label",
+        });
+        return;
+      }
+
+      // Otherwise create new text at click position
+      setTextInput({
+        x: coords.x,
+        y: coords.y,
+        text: "",
+        isEditing: true,
+      });
+    },
+    [getCanvasCoordinates, shapes]
+  );
 
   // Focus text input when it becomes active
   useEffect(() => {
@@ -1000,11 +1208,12 @@ export function DrawingCanvas({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onDoubleClick={handleDoubleClick}
       />
 
       {selectionBox && (
         <div
-          className="absolute border border-dashed border-white/60 bg-white/5"
+          className="pointer-events-none absolute border-2 border-dashed border-indigo-500 bg-indigo-500/10"
           style={{
             left: selectionBox.x * zoom + pan.x,
             top: selectionBox.y * zoom + pan.y,
@@ -1015,36 +1224,72 @@ export function DrawingCanvas({
       )}
 
       {/* Text input overlay */}
-      {textInput && textInput.isEditing && (
-        <textarea
-          ref={textInputRef}
-          className="absolute resize-none border-2 border-indigo-500 bg-transparent text-white outline-none"
-          style={{
-            left: textInput.x * zoom + pan.x,
-            top: textInput.y * zoom + pan.y,
-            fontSize: `${18 * zoom}px`,
-            fontFamily: "sans-serif",
-            minWidth: "100px",
-            minHeight: "30px",
-            padding: "4px",
-            color: strokeColor,
-          }}
-          value={textInput.text}
-          onChange={(e) => setTextInput({ ...textInput, text: e.target.value })}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              setTextInput(null);
-            } else if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleTextSubmit();
+      {textInput &&
+        textInput.isEditing &&
+        (() => {
+          // Get font size - use existing if editing, otherwise use selected size
+          let fontSize = TEXT_SIZE_MAP[textSize];
+          if (textInput.editingShapeId && textInput.editingType === "text") {
+            const editingShape = shapes.find((s) => s.id === textInput.editingShapeId) as
+              | TextShape
+              | undefined;
+            if (editingShape) {
+              fontSize = editingShape.fontSize;
             }
-            // Stop propagation to prevent keyboard shortcuts
-            e.stopPropagation();
-          }}
-          onBlur={handleTextSubmit}
-          placeholder="Type here..."
-        />
-      )}
+          } else if (textInput.editingShapeId && textInput.editingType === "label") {
+            const editingShape = shapes.find((s) => s.id === textInput.editingShapeId);
+            if (editingShape?.labelFontSize) {
+              fontSize = editingShape.labelFontSize;
+            }
+          }
+
+          // For labels, center the input
+          const isLabel = textInput.editingType === "label";
+
+          return (
+            <textarea
+              ref={textInputRef}
+              className={`absolute resize-none whitespace-pre border-none bg-transparent text-white outline-none ${
+                isLabel ? "text-center" : ""
+              }`}
+              style={{
+                left: textInput.x * zoom + pan.x,
+                top: textInput.y * zoom + pan.y,
+                fontSize: `${fontSize * zoom}px`,
+                fontFamily: "sans-serif",
+                minWidth: "20px",
+                minHeight: "30px",
+                width: "auto",
+                padding: "4px",
+                color: strokeColor,
+                overflow: "hidden",
+                wordWrap: "normal",
+                overflowWrap: "normal",
+                transform: isLabel ? "translate(-50%, -50%)" : "none",
+              }}
+              value={textInput.text}
+              onChange={(e) => {
+                setTextInput({ ...textInput, text: e.target.value });
+                // Auto-resize the textarea
+                if (textInputRef.current) {
+                  textInputRef.current.style.width = "auto";
+                  textInputRef.current.style.height = "auto";
+                  textInputRef.current.style.width = `${textInputRef.current.scrollWidth}px`;
+                  textInputRef.current.style.height = `${textInputRef.current.scrollHeight}px`;
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setTextInput(null);
+                }
+                // Stop propagation to prevent keyboard shortcuts
+                e.stopPropagation();
+              }}
+              onBlur={handleTextSubmit}
+              placeholder={isLabel ? "Add label..." : "Type here..."}
+            />
+          );
+        })()}
     </div>
   );
 }

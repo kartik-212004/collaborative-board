@@ -11,7 +11,6 @@ import {
   MousePointer2,
   Pencil,
   Square,
-  Type,
   Lock,
 } from "lucide-react";
 
@@ -34,7 +33,6 @@ const tools: { id: Tool; icon: React.ReactNode; label: string; shortcut: string 
   { id: "arrow", icon: <ArrowUpRight className="h-5 w-5" />, label: "Arrow", shortcut: "A" },
   { id: "line", icon: <Minus className="h-5 w-5" />, label: "Line", shortcut: "L" },
   { id: "pencil", icon: <Pencil className="h-5 w-5" />, label: "Draw", shortcut: "P" },
-  { id: "text", icon: <Type className="h-5 w-5" />, label: "Text", shortcut: "T" },
   { id: "image", icon: <Image className="h-5 w-5" />, label: "Image", shortcut: "I" },
   { id: "eraser", icon: <Eraser className="h-5 w-5" />, label: "Eraser", shortcut: "E" },
 ];

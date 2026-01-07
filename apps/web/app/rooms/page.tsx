@@ -225,7 +225,7 @@ export default function RoomsPage() {
                 onClick={handleRoomCreate}
                 disabled={isCreating}
                 variant="outline"
-                className="w-full border-white/20 text-black hover:bg-white/10 hover:text-white">
+                className="w-full border-white/20 hover:bg-white/10 hover:text-white/70">
                 {isCreating ? "Creating Room" : "Create Room"}
               </Button>
 

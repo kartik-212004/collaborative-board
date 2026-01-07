@@ -30,6 +30,9 @@ export interface BaseShape {
   fillColor?: string;
   opacity: number;
   isSelected?: boolean;
+  // Text inside the shape
+  label?: string;
+  labelFontSize?: number;
 }
 
 export interface RectangleShape extends BaseShape {

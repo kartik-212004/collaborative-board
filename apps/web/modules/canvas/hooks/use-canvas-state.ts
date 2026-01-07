@@ -177,6 +177,21 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     [pushToHistory]
   );
 
+  // Update selected shapes with new properties
+  const updateSelectedShapes = useCallback(
+    (updates: Partial<Shape>) => {
+      setCanvasState((prev) => {
+        if (prev.selectedIds.length === 0) return prev;
+        const newShapes = prev.shapes.map((shape) =>
+          prev.selectedIds.includes(shape.id) ? ({ ...shape, ...updates } as Shape) : shape
+        );
+        pushToHistory(newShapes);
+        return { ...prev, shapes: newShapes };
+      });
+    },
+    [pushToHistory]
+  );
+
   const deleteSelectedShapes = useCallback(() => {
     setCanvasState((prev) => {
       const newShapes = prev.shapes.filter((shape) => !prev.selectedIds.includes(shape.id));
@@ -287,6 +302,7 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     updateShape,
     deleteShape,
     deleteSelectedShapes,
+    updateSelectedShapes,
     clearCanvas,
     setShapes,
 

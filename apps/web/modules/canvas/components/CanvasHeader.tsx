@@ -33,7 +33,7 @@ export function CanvasHeader({ roomId, isConnected, connectedUsers = 1, roomName
         {/* Connection Status */}
         <div className="border-canvas-border bg-canvas-toolbar hidden items-center gap-2 rounded-lg border px-3 py-1.5 shadow-lg sm:flex">
           <div
-            className={`h-2 w-2 rounded-full ${isConnected ? "animate-pulse bg-emerald-500" : "bg-rose-500"}`}
+            className={`h-2 w-2 rounded-full ${isConnected ? "animate-pulse bg-emerald-400" : "bg-rose-500"}`}
           />
           <span className="text-canvas-muted-foreground text-xs">
             {isConnected ? `${connectedUsers} online` : "Offline"}
