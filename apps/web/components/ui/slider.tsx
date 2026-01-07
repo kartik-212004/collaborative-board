@@ -2,24 +2,73 @@
 
 import * as React from "react";
 
-import * as SliderPrimitive from "@radix-ui/react-slider";
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 
 import { cn } from "@/lib/utils";
 
-const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <SliderPrimitive.Root
-    ref={ref}
-    className={cn("relative flex w-full touch-none select-none items-center", className)}
-    {...props}>
-    <SliderPrimitive.Track className="bg-secondary relative h-2 w-full grow overflow-hidden rounded-full">
-      <SliderPrimitive.Range className="bg-primary absolute h-full" />
-    </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="border-primary bg-background ring-offset-background focus-visible:ring-ring block h-5 w-5 rounded-full border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
-  </SliderPrimitive.Root>
-));
-Slider.displayName = SliderPrimitive.Root.displayName;
+function Slider({
+  className,
+  children,
+  defaultValue,
+  value,
+  min = 0,
+  max = 100,
+  ...props
+}: SliderPrimitive.Root.Props) {
+  const _values = React.useMemo(() => {
+    if (value !== undefined) {
+      return Array.isArray(value) ? value : [value];
+    }
+    if (defaultValue !== undefined) {
+      return Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+    }
+    return [min];
+  }, [value, defaultValue, min]);
 
-export { Slider };
+  return (
+    <SliderPrimitive.Root
+      className="data-[orientation=horizontal]:w-full"
+      defaultValue={defaultValue}
+      max={max}
+      min={min}
+      thumbAlignment="edge"
+      value={value}
+      {...props}>
+      {children}
+      <SliderPrimitive.Control
+        className={cn(
+          "data-disabled:pointer-events-none data-disabled:opacity-64 flex touch-none select-none data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=horizontal]:w-full data-[orientation=horizontal]:min-w-44 data-[orientation=vertical]:flex-col",
+          className
+        )}
+        data-slot="slider-control">
+        <SliderPrimitive.Track
+          className="before:bg-input relative grow select-none before:absolute before:rounded-full data-[orientation=horizontal]:h-1 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1 data-[orientation=horizontal]:before:inset-x-0.5 data-[orientation=horizontal]:before:inset-y-0 data-[orientation=vertical]:before:inset-x-0 data-[orientation=vertical]:before:inset-y-0.5"
+          data-slot="slider-track">
+          <SliderPrimitive.Indicator
+            className="bg-primary select-none rounded-full data-[orientation=horizontal]:ms-0.5 data-[orientation=vertical]:mb-0.5"
+            data-slot="slider-indicator"
+          />
+          {Array.from({ length: _values.length }, (_, index) => (
+            <SliderPrimitive.Thumb
+              className="border-input shadow-xs focus-visible:ring-ring/24 has-focus-visible:ring-[3px] has-focus-visible:ring-ring/24 data-dragging:ring-[3px] data-dragging:ring-ring/24 dark:border-background dark:data-dragging:ring-ring/48 dark:focus-visible:ring-ring/48 [:focus-visible,[data-dragging]]:shadow-none block size-5 shrink-0 select-none rounded-full border bg-white bg-clip-padding outline-none transition-shadow before:absolute before:inset-0 before:rounded-full before:shadow-[0_1px_--theme(--color-black/4%)] focus-visible:ring-[3px] sm:size-4 dark:bg-clip-border"
+              data-slot="slider-thumb"
+              key={String(index)}
+            />
+          ))}
+        </SliderPrimitive.Track>
+      </SliderPrimitive.Control>
+    </SliderPrimitive.Root>
+  );
+}
+
+function SliderValue({ className, ...props }: SliderPrimitive.Value.Props) {
+  return (
+    <SliderPrimitive.Value
+      className={cn("flex justify-end text-sm", className)}
+      data-slot="slider-value"
+      {...props}
+    />
+  );
+}
+
+export { Slider, SliderValue };

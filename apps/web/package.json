@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm --filter @repo/prisma... build && pnpm --filter @repo/env... build && pnpm --filter @repo/zod... build",
-    "build": "pnpm prebuild && next build",
-    "dev": "pnpm prebuild && next dev",
+    "build": "next build",
+    "dev": "next dev",
+    "dev:standalone": "pnpm build:deps && next dev",
+    "build:deps": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
     "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
+    "@base-ui/react": "^1.0.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -57,7 +59,7 @@
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
     "sonner": "^1.7.1",
-    "tailwind-merge": "^2.5.5",
+    "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"

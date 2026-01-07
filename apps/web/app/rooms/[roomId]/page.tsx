@@ -1,192 +1,190 @@
 "use client";
 
-import React, { useEffect, useRef, use, useState } from "react";
+import React, { useEffect, useRef, use, useState, useCallback } from "react";
 
-import { Button } from "@/components/ui/button";
+import { PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Users } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 
-export default function Drawing({ params }: { params: Promise<{ roomId: string }> }) {
-  const [select, setSelect] = useState<"rectangle" | "circle">("rectangle");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+import {
+  Toolbar,
+  ZoomControls,
+  CanvasHeader,
+  CanvasHint,
+  CanvasFooter,
+  DrawingCanvas,
+  useCanvasState,
+  useKeyboardShortcuts,
+  STROKE_COLORS,
+  type Shape,
+  type DrawMessage,
+  type ConnectedUser,
+} from "@/modules/canvas";
+
+export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
+  const { roomId } = use(params);
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-
-  const { roomId } = use(params);
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const [connectedUsers, setConnectedUsers] = useState<ConnectedUser[]>([]);
+  const [currentUser, setCurrentUser] = useState<ConnectedUser | null>(null);
+  const [strokeSize, setStrokeSize] = useState(2);
+  const [textSize, setTextSize] = useState<"xs" | "md" | "lg" | "xxl">("md");
+  const [showControls, setShowControls] = useState(true);
+  const [showPresence, setShowPresence] = useState(true);
   const { isAuthenticated, user, isLoading } = useAuth();
-  const shapeRef = useRef<"rectangle" | "circle">(select);
 
+  const {
+    canvasState,
+    drawingState,
+    setTool,
+    setZoom,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    setPan,
+    setStrokeColor,
+    setStrokeWidth,
+    setFillColor,
+    setOpacity,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    addShape,
+    updateShape,
+    deleteShape,
+    deleteSelectedShapes,
+    updateSelectedShapes,
+    clearCanvas,
+    setShapes,
+    setSelection,
+    setLiveShapes,
+    selectShape,
+    deselectAll,
+    selectAll,
+    startDrawing,
+    updateDrawing,
+    finishDrawing,
+  } = useCanvasState();
+
+  const handleDeleteSelectedShapesForShortcut = useCallback(() => {
+    const selectedIds = canvasState.selectedIds;
+    selectedIds.forEach((shapeId) => {
+      deleteShape(shapeId);
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const message: DrawMessage = {
+          name: user?.name || "Anonymous",
+          type: "delete",
+          roomId: roomId,
+          payload: {
+            shapeId,
+            timestamp: Date.now(),
+          },
+        };
+        socketRef.current.send(JSON.stringify(message));
+      }
+    });
+  }, [canvasState.selectedIds, deleteShape, roomId, user?.name]);
+
+  useKeyboardShortcuts({
+    currentTool: canvasState.tool,
+    setTool,
+    undo,
+    redo,
+    deleteSelectedShapes: handleDeleteSelectedShapesForShortcut,
+    selectAll,
+    deselectAll,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+  });
   useEffect(() => {
-    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}`;
-    const ws = new WebSocket(wsUrl);
-    ws.onopen = () => ws.close();
-  }, []);
-
-  const shapesRef = useRef<{
-    squares: { Yin: number; Xin: number; Xout: number; Yout: number }[];
-    circles: { Yin: number; Xin: number; radius: number }[];
-  }>({
-    squares: [],
-    circles: [],
-  });
-
-  const drawingStateRef = useRef<{
-    Xin: number;
-    Yin: number;
-    Xout: number;
-    Yout: number;
-    radius: number;
-    clicked: boolean;
-  }>({
-    Xin: 0,
-    Yin: 0,
-    Xout: 0,
-    Yout: 0,
-    radius: 0,
-    clicked: false,
-  });
-
-  interface MessageType {
-    name: string;
-    type: "join" | "draw" | "user_joined" | "error" | "clear";
-    roomId: string;
-    payload: {
-      Xin: number;
-      Yin: number;
-      Xout?: number;
-      Yout?: number;
-      radius?: number;
-      shape: "rectangle" | "circle";
-      timestamp?: number;
-      message?: string;
-    };
-  }
-
-  const redrawCanvas = () => {
-    if (!ctxRef.current || !canvasRef.current) return;
-
-    ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    ctxRef.current.strokeStyle = "white";
-    ctxRef.current.lineWidth = 2;
-
-    shapesRef.current.squares.forEach((rect) => {
-      if (ctxRef.current) {
-        ctxRef.current.strokeRect(rect.Xin, rect.Yin, rect.Xout, rect.Yout);
-      }
-    });
-
-    shapesRef.current.circles.forEach((circle) => {
-      if (ctxRef.current) {
-        ctxRef.current.beginPath();
-        ctxRef.current.arc(circle.Xin, circle.Yin, circle.radius, 0, 2 * Math.PI);
-        ctxRef.current.stroke();
-      }
-    });
-  };
-
-  const clearCanvas = () => {
-    shapesRef.current.squares = [];
-    shapesRef.current.circles = [];
-
-    if (ctxRef.current && canvasRef.current) {
-      ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    }
-
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      const message = {
-        name: user?.name || "Anonymous",
-        type: "clear" as const,
-        roomId: roomId,
-        payload: {
-          Xin: 0,
-          Yin: 0,
-          shape: "rectangle" as const,
-          timestamp: new Date().getTime(),
-        },
-      };
-      socketRef.current.send(JSON.stringify(message));
-    }
-  };
-
-  const getCanvasCoordinates = (e: MouseEvent) => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    const rect = canvasRef.current.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
-  };
-
+    setStrokeWidth(strokeSize);
+  }, [strokeSize, setStrokeWidth]);
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
     if (!token) {
       console.error("No auth token found");
       return;
     }
 
-    socketRef.current = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`);
+    const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`;
+    socketRef.current = new WebSocket(wsUrl);
 
     socketRef.current.onopen = () => {
       setIsConnected(true);
 
       if (socketRef.current && user?.name) {
-        const joinMessage = {
+        const joinMessage: DrawMessage = {
           name: user.name,
           type: "join",
           roomId: roomId,
-          payload: {
-            Xin: 0,
-            Yin: 0,
-            shape: "rectangle" as const,
-          },
+          payload: {},
         };
         socketRef.current.send(JSON.stringify(joinMessage));
       }
     };
 
     socketRef.current.onerror = (err) => {
-      console.error("WebSocket Error:", err);
+      console.error("WebSocket Error - Could not connect to:", process.env.NEXT_PUBLIC_WS_URL);
+      console.error("Make sure ws-backend is running: pnpm --filter ws-backend dev");
       setIsConnected(false);
     };
 
-    socketRef.current.onclose = (event) => {
+    socketRef.current.onclose = () => {
       setIsConnected(false);
     };
 
     socketRef.current.onmessage = (event) => {
       try {
-        const message: MessageType = JSON.parse(event.data);
+        const message: DrawMessage = JSON.parse(event.data);
 
-        if (message.type === "draw") {
-          const payload = message.payload;
-
-          if (payload.shape === "rectangle" && payload.Xout !== undefined && payload.Yout !== undefined) {
-            shapesRef.current.squares.push({
-              Xin: payload.Xin,
-              Yin: payload.Yin,
-              Xout: payload.Xout,
-              Yout: payload.Yout,
-            });
-          } else if (payload.shape === "circle" && payload.radius !== undefined) {
-            shapesRef.current.circles.push({
-              Xin: payload.Xin,
-              Yin: payload.Yin,
-              radius: payload.radius,
-            });
-          }
-
-          redrawCanvas();
-        } else if (message.type === "clear") {
-          shapesRef.current.squares = [];
-          shapesRef.current.circles = [];
-
-          if (ctxRef.current && canvasRef.current) {
-            ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-          }
-        } else if (message.type === "user_joined") {
-        } else if (message.type === "error") {
+        switch (message.type) {
+          case "init":
+            if (message.payload.shapes) {
+              setShapes(message.payload.shapes);
+            }
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            if (message.payload.user) {
+              setCurrentUser(message.payload.user);
+            }
+            break;
+          case "draw":
+            if (message.payload.shape) {
+              addShape(message.payload.shape);
+            }
+            break;
+          case "update":
+            if (message.payload.shape) {
+              updateShape(message.payload.shape.id, message.payload.shape);
+            }
+            break;
+          case "delete":
+            if (message.payload.shapeId) {
+              deleteShape(message.payload.shapeId);
+            }
+            break;
+          case "clear":
+            clearCanvas();
+            break;
+          case "user_joined":
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            break;
+          case "user_left":
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            break;
+          case "drawing_start":
+          case "drawing_end":
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            break;
         }
       } catch (error) {
         console.error("Error parsing message:", error);
@@ -198,154 +196,349 @@ export default function Drawing({ params }: { params: Promise<{ roomId: string }
         socketRef.current.close();
       }
     };
+  }, [roomId, user?.name, addShape, updateShape, deleteShape, clearCanvas, setShapes]);
+  const handleAddShape = useCallback(
+    (shape: Shape) => {
+      addShape(shape);
+
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const message: DrawMessage = {
+          name: user?.name || "Anonymous",
+          type: "draw",
+          roomId: roomId,
+          payload: {
+            shape,
+            timestamp: Date.now(),
+          },
+        };
+        socketRef.current.send(JSON.stringify(message));
+      }
+    },
+    [addShape, roomId, user?.name]
+  );
+  const handleDeleteShape = useCallback(
+    (shapeId: string) => {
+      deleteShape(shapeId);
+
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const message: DrawMessage = {
+          name: user?.name || "Anonymous",
+          type: "delete",
+          roomId: roomId,
+          payload: {
+            shapeId,
+            timestamp: Date.now(),
+          },
+        };
+        socketRef.current.send(JSON.stringify(message));
+      }
+    },
+    [deleteShape, roomId, user?.name]
+  );
+
+  const handleUpdateShape = useCallback(
+    (shapeId: string, updates: Partial<Shape>) => {
+      updateShape(shapeId, updates);
+
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const updatedShape = canvasState.shapes.find((s) => s.id === shapeId);
+        if (updatedShape) {
+          const message: DrawMessage = {
+            name: user?.name || "Anonymous",
+            type: "update",
+            roomId: roomId,
+            payload: {
+              shape: { ...updatedShape, ...updates } as Shape,
+              timestamp: Date.now(),
+            },
+          };
+          socketRef.current.send(JSON.stringify(message));
+        }
+      }
+    },
+    [updateShape, roomId, user?.name, canvasState.shapes]
+  );
+
+  const handleClearCanvas = useCallback(() => {
+    clearCanvas();
+
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      const message: DrawMessage = {
+        name: user?.name || "Anonymous",
+        type: "clear",
+        roomId: roomId,
+        payload: {
+          timestamp: Date.now(),
+        },
+      };
+      socketRef.current.send(JSON.stringify(message));
+    }
+  }, [clearCanvas, roomId, user?.name]);
+
+  const sendDrawingStart = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          name: user?.name || "Anonymous",
+          type: "drawing_start",
+          roomId: roomId,
+          payload: {},
+        })
+      );
+    }
   }, [roomId, user?.name]);
 
-  useEffect(() => {
-    shapeRef.current = select;
-  }, [select]);
-
-  function handleMouseDown(e: MouseEvent) {
-    const coords = getCanvasCoordinates(e);
-    drawingStateRef.current.clicked = true;
-    drawingStateRef.current.Xin = coords.x;
-    drawingStateRef.current.Yin = coords.y;
-  }
-
-  function handleMouseUp(e: MouseEvent) {
-    if (!drawingStateRef.current.clicked) return;
-
-    const coords = getCanvasCoordinates(e);
-    drawingStateRef.current.clicked = false;
-    drawingStateRef.current.Xout = coords.x - drawingStateRef.current.Xin;
-    drawingStateRef.current.Yout = coords.y - drawingStateRef.current.Yin;
-
-    const { Xin, Yin, Xout, Yout, radius } = drawingStateRef.current;
-
-    if (shapeRef.current === "circle") {
-      shapesRef.current.circles.push({ Xin, Yin, radius });
-
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        const message = {
+  const sendDrawingEnd = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
           name: user?.name || "Anonymous",
-          type: "draw",
+          type: "drawing_end",
           roomId: roomId,
-          payload: {
-            Xin: Xin,
-            Yin: Yin,
-            radius: radius,
-            shape: "circle" as const,
-            timestamp: new Date().getTime(),
-          },
-        };
-        socketRef.current.send(JSON.stringify(message));
-      }
-    } else if (shapeRef.current === "rectangle") {
-      shapesRef.current.squares.push({ Xin, Yin, Xout, Yout });
-
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        const message = {
-          name: user?.name || "Anonymous",
-          type: "draw",
-          roomId: roomId,
-          payload: {
-            Xin: Xin,
-            Yin: Yin,
-            Xout: Xout,
-            Yout: Yout,
-            shape: "rectangle" as const,
-            timestamp: new Date().getTime(),
-          },
-        };
-        socketRef.current.send(JSON.stringify(message));
-      }
+          payload: {},
+        })
+      );
     }
+  }, [roomId, user?.name]);
 
-    redrawCanvas();
-  }
+  const handleStartDrawing = useCallback(
+    (point: { x: number; y: number }) => {
+      startDrawing(point);
+      sendDrawingStart();
+    },
+    [startDrawing, sendDrawingStart]
+  );
 
-  function handleMouseMove(e: MouseEvent) {
-    if (!drawingStateRef.current.clicked) return;
-
-    const coords = getCanvasCoordinates(e);
-    drawingStateRef.current.Xout = coords.x - drawingStateRef.current.Xin;
-    drawingStateRef.current.Yout = coords.y - drawingStateRef.current.Yin;
-
-    const { Xin, Yin, Xout, Yout } = drawingStateRef.current;
-
-    if (!ctxRef.current || !canvasRef.current) return;
-
-    if (select === "rectangle") {
-      redrawCanvas();
-      ctxRef.current.strokeStyle = "white";
-      ctxRef.current.strokeRect(Xin, Yin, Xout, Yout);
-    } else if (select === "circle") {
-      drawingStateRef.current.radius = Math.sqrt(Math.pow(Xout, 2) + Math.pow(Yout, 2));
-      redrawCanvas();
-      ctxRef.current.beginPath();
-      ctxRef.current.strokeStyle = "white";
-      ctxRef.current.arc(Xin, Yin, drawingStateRef.current.radius, 0, 2 * Math.PI);
-      ctxRef.current.stroke();
-    }
-  }
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    ctxRef.current = canvas.getContext("2d");
-    if (ctxRef.current) {
-      ctxRef.current.strokeStyle = "white";
-      ctxRef.current.lineWidth = 2;
-    }
-
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mouseup", handleMouseUp);
-    canvas.addEventListener("mousemove", handleMouseMove);
-
-    return () => {
-      canvas.removeEventListener("mousedown", handleMouseDown);
-      canvas.removeEventListener("mouseup", handleMouseUp);
-      canvas.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [select]);
+  const handleFinishDrawing = useCallback(() => {
+    finishDrawing();
+    sendDrawingEnd();
+  }, [finishDrawing, sendDrawingEnd]);
 
   return (
-    <div className="relative bg-black">
-      <div className="absolute right-4 top-4 z-10">
-        <div
-          className={`rounded px-3 py-1 text-sm ${isConnected ? "bg-green-500" : "bg-red-500"} text-white`}>
-          {isConnected ? "Connected" : "Disconnected"}
+    <div className="bg-canvas-background relative h-screen w-screen overflow-hidden">
+      <DrawingCanvas
+        shapes={canvasState.shapes}
+        currentShape={drawingState.currentShape}
+        tool={canvasState.tool}
+        zoom={canvasState.zoom}
+        pan={canvasState.pan}
+        strokeColor={canvasState.strokeColor}
+        strokeWidth={canvasState.strokeWidth}
+        fillColor={canvasState.fillColor}
+        opacity={canvasState.opacity}
+        textSize={textSize}
+        selectedIds={canvasState.selectedIds}
+        onStartDrawing={handleStartDrawing}
+        onUpdateDrawing={updateDrawing}
+        onFinishDrawing={handleFinishDrawing}
+        onAddShape={handleAddShape}
+        onUpdateShape={handleUpdateShape}
+        onSelectShape={selectShape}
+        onSetSelection={setSelection}
+        onSetLiveShapes={setLiveShapes}
+        onCommitShapes={setShapes}
+        onDeselectAll={deselectAll}
+        onDeleteShape={handleDeleteShape}
+        onPanChange={setPan}
+        onSetZoom={setZoom}
+        isDrawing={drawingState.isDrawing}
+        startPoint={drawingState.startPoint}
+      />
+
+      {/* Top Header */}
+      <div className="pointer-events-none absolute left-4 right-4 top-4 z-10">
+        {/* Left - Toggle button */}
+        <div className="pointer-events-auto absolute left-0">
+          <button
+            type="button"
+            onClick={() => setShowControls(!showControls)}
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-10 w-10 items-center justify-center rounded-lg border shadow-lg">
+            {showControls ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+          </button>
+        </div>
+
+        {/* Center - Toolbar */}
+        <div className="pointer-events-auto flex justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <Toolbar currentTool={canvasState.tool} onToolChange={setTool} />
+            <CanvasHint />
+          </div>
+        </div>
+
+        {/* Right - Header controls */}
+        <div className="pointer-events-auto absolute right-0 top-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPresence(!showPresence)}
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-10 w-10 items-center justify-center rounded-lg border shadow-lg">
+            {showPresence ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+          </button>
+          <CanvasHeader roomId={roomId} isConnected={isConnected} connectedUsers={connectedUsers.length} />
         </div>
       </div>
 
-      <div className="absolute bottom-0 flex w-full flex-row justify-center text-center">
-        <div className="space-x-4 p-5 font-mono font-extrabold">
-          <Button
-            onClick={() => setSelect("rectangle")}
-            className={`w-28 text-black hover:bg-green-500 ${select === "rectangle" ? "bg-green-500" : "bg-white"}`}>
-            Rectangle
-          </Button>
-          <Button
-            onClick={() => setSelect("circle")}
-            className={`w-28 text-black hover:bg-green-500 ${select === "circle" ? "bg-green-500" : "bg-white"}`}>
-            Circle
-          </Button>
-          <Button
-            onClick={() => navigator.clipboard.writeText(roomId)}
-            className="w-28 border border-gray-600 bg-gray-700 text-white hover:bg-gray-600">
-            COPY CODE
-          </Button>
-          <Button onClick={clearCanvas} className="w-28 bg-red-600 text-white hover:bg-red-700">
-            CLEAR
-          </Button>
+      {/* Left sidebar controls */}
+      {showControls && (
+        <div className="pointer-events-none absolute left-4 top-20 z-10">
+          <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <span className="text-sm font-semibold">Controls</span>
+            </div>
+            <div className="space-y-4 px-4 py-3 text-sm">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-white/90">Stroke</span>
+                  <span className="text-xs text-white/50">{strokeSize}px</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="h-8 w-8 rounded-lg border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10"
+                    onClick={() => setStrokeSize((s) => Math.max(1, s - 1))}>
+                    –
+                  </button>
+                  <div className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-center text-xs text-white/70">
+                    {strokeSize}px
+                  </div>
+                  <button
+                    type="button"
+                    className="h-8 w-8 rounded-lg border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10"
+                    onClick={() => setStrokeSize((s) => Math.min(24, s + 1))}>
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-white/90">Color</span>
+                </div>
+                <div className="grid grid-cols-7 gap-1.5">
+                  {STROKE_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => {
+                        setStrokeColor(color);
+                        if (canvasState.selectedIds.length > 0) {
+                          updateSelectedShapes({ strokeColor: color });
+                        }
+                      }}
+                      className={`h-6 w-6 rounded-md border-2 transition-all ${
+                        canvasState.strokeColor === color
+                          ? "scale-110 border-white"
+                          : "border-transparent hover:border-white/50"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-white/90">Text Size</span>
+                </div>
+                <div className="flex gap-1">
+                  {(["xs", "md", "lg", "xxl"] as const).map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setTextSize(size)}
+                      className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium uppercase transition-all ${
+                        textSize === size
+                          ? "border-white bg-white text-black"
+                          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                      }`}>
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Bottom Left - Zoom Controls */}
+      <div className="pointer-events-none absolute bottom-4 left-4 z-10">
+        <div className="pointer-events-auto">
+          <ZoomControls
+            zoom={canvasState.zoom}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onResetZoom={resetZoom}
+            onUndo={undo}
+            onRedo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+          />
         </div>
       </div>
-      <canvas
-        ref={canvasRef}
-        height={typeof window !== "undefined" ? window.innerHeight : 927}
-        width={typeof window !== "undefined" ? window.innerWidth : 1920}
-        className="bg-black"
-      />
+
+      {/* Bottom Right - Footer */}
+      <div className="pointer-events-none absolute bottom-4 right-4 z-10">
+        <div className="pointer-events-auto">
+          <CanvasFooter />
+        </div>
+      </div>
+
+      {/* Right sidebar for presence */}
+      {showPresence && (
+        <div className="pointer-events-none absolute right-4 top-20 z-10">
+          <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <span className="text-sm font-semibold">People</span>
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white/10 px-1.5 text-xs font-medium">
+                {connectedUsers.length}
+              </span>
+            </div>
+            <div className="max-h-64 overflow-y-auto px-2 py-2">
+              {connectedUsers.length === 0 ? (
+                <div className="px-2 py-3 text-center text-xs text-white/50">No one else is here yet</div>
+              ) : (
+                <div className="space-y-1">
+                  {connectedUsers.map((u) => (
+                    <div key={u.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/5">
+                      <div
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white"
+                        style={{ backgroundColor: u.color }}>
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-medium text-white/90">
+                            {u.name}
+                            {currentUser?.id === u.id && (
+                              <span className="ml-1 text-xs text-white/50">(you)</span>
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs">
+                          {u.isDrawing ? (
+                            <>
+                              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                              <span className="text-emerald-400">Drawing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                              <span className="text-white/50">Idle</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="border-t border-white/10 px-4 py-2">
+              <div className="flex items-center gap-2 text-xs">
+                <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-400" : "bg-rose-400"}`} />
+                <span className="text-white/60">{isConnected ? "Connected" : "Disconnected"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

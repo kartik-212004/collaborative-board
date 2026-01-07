@@ -8,6 +8,7 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./modules/**/*.{js,ts,jsx,tsx,mdx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -62,6 +63,21 @@ const config: Config = {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        // Canvas theme colors for the drawing app
+        canvas: {
+          background: "hsl(var(--canvas-background))",
+          foreground: "hsl(var(--canvas-foreground))",
+          toolbar: "hsl(var(--canvas-toolbar))",
+          border: "hsl(var(--canvas-border))",
+          hover: "hsl(var(--canvas-hover))",
+          active: "hsl(var(--canvas-active))",
+          "active-foreground": "hsl(var(--canvas-active-foreground))",
+          muted: "hsl(var(--canvas-muted))",
+          "muted-foreground": "hsl(var(--canvas-muted-foreground))",
+          accent: "hsl(var(--canvas-accent))",
+          primary: "hsl(var(--canvas-primary))",
+          "primary-foreground": "hsl(var(--canvas-primary-foreground))",
         },
       },
       borderRadius: {

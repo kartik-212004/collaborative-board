@@ -5,13 +5,14 @@ import { useEffect, useState, useRef } from "react";
 
 import api from "@/lib/apt";
 
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { useAuth } from "@/hooks/use-auth";
+
+import Header from "@/modules/Header";
 
 export default function RoomsPage() {
   const { isAuthenticated, isLoading, token } = useAuth();
@@ -174,7 +175,7 @@ export default function RoomsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -185,7 +186,7 @@ export default function RoomsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="bg-background min-h-screen">
       <Header />
       <div className="container mx-auto my-4 max-w-md">
         <div className="mb-8 text-center">
@@ -215,7 +216,7 @@ export default function RoomsPage() {
                   if (error) setError("");
                 }}
                 maxLength={5}
-                className="border-white/20 bg-white/10 text-center font-mono text-lg tracking-wider text-white placeholder:text-white/50 focus:border-white"
+                className="h-8 border-white/20 bg-white bg-white/10 px-2 text-center font-mono text-lg tracking-wider placeholder:text-white/50 focus:border-white"
               />
             </div>
 
@@ -224,7 +225,7 @@ export default function RoomsPage() {
                 onClick={handleRoomCreate}
                 disabled={isCreating}
                 variant="outline"
-                className="w-full border-white/20 text-black hover:bg-white/10 hover:text-white">
+                className="w-full border-white/20 hover:bg-white/10 hover:text-white/70">
                 {isCreating ? "Creating Room" : "Create Room"}
               </Button>
 
