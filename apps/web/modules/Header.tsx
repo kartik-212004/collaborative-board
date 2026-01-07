@@ -34,12 +34,12 @@ export default function Header() {
             <>
               <div className="flex items-center space-x-2 text-white">
                 <User className="h-4 w-4" />
-                <span className="text-sm">{user?.email}</span>
+                <span className="text-sm">{user?.name}</span>
               </div>
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-white transition-colors hover:bg-white/10 hover:text-red-500">
+                className="px-2 text-white transition-colors hover:bg-white/10 hover:text-red-500">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
