@@ -1,7 +1,30 @@
 import { WEBSOCKET_PORT, SECRET_KEY } from "@repo/env";
 import { prisma } from "@repo/prisma/client";
+import http from "http";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
+
+const server = http.createServer((req, res) => {
+  if (req.url === "/health" || req.url === "/") {
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    });
+    res.end(
+      JSON.stringify({
+        success: true,
+        message: "WebSocket server is running",
+        timestamp: new Date().toISOString(),
+        activeRooms: Object.keys(rooms).length,
+        activeConnections: Object.values(rooms).reduce((acc, r) => acc + r.length, 0),
+      })
+    );
+    return;
+  }
+
+  res.writeHead(426, { "Content-Type": "text/plain" });
+  res.end("Upgrade Required - This is a WebSocket server");
+});
 
 const rooms: Record<string, WebSocket[]> = {};
 
@@ -19,8 +42,13 @@ function generateUserId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-const wss = new WebSocketServer({
-  port: WEBSOCKET_PORT,
+// Attach WebSocket server to HTTP server
+const wss = new WebSocketServer({ server });
+
+// Start the HTTP server
+server.listen(WEBSOCKET_PORT, () => {
+  console.log(`✅ WebSocket server running on port ${WEBSOCKET_PORT}`);
+  console.log(`   Health check available at http://localhost:${WEBSOCKET_PORT}/health`);
 });
 
 interface MessageType {
