@@ -134,7 +134,9 @@ export default function SignUpPage() {
                   placeholder="Ada Lovelace"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                  unstyled
+                  className="w-full"
+                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                   required
                 />
               </div>
@@ -150,7 +152,9 @@ export default function SignUpPage() {
                   placeholder="you@company.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                  unstyled
+                  className="w-full"
+                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                   required
                 />
               </div>
@@ -167,7 +171,9 @@ export default function SignUpPage() {
                     placeholder="Minimum 6 characters"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="h-8 rounded-md border border-white/20 bg-white px-2 pr-12 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                    unstyled
+                    className="w-full"
+                    inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 pr-12 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                     required
                     minLength={6}
                   />
@@ -196,7 +202,9 @@ export default function SignUpPage() {
                   placeholder="https://example.com/photo.jpg"
                   value={formData.photo}
                   onChange={handleInputChange}
-                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                  unstyled
+                  className="w-full"
+                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                 />
                 {formData.photo && (
                   <div className="mt-2 flex justify-center">

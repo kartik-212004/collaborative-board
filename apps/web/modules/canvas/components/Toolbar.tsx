@@ -49,11 +49,14 @@ export function Toolbar({ currentTool, onToolChange }: ToolbarProps) {
                 <Toggle
                   pressed={isSelected}
                   onPressedChange={() => onToolChange(tool.id)}
-                  className={`h-10 w-10 rounded-lg border-0 text-white transition-all hover:text-white ${
+                  className={`relative h-10 w-10 rounded-lg border-0 text-white hover:text-white ${
                     isSelected ? "bg-white text-black ring-2 ring-white/50" : "hover:bg-white/10"
                   }`}
                   aria-label={tool.label}>
                   {tool.icon}
+                  <span className={`absolute bottom-0.5 right-0.5 text-[9px] font-medium leading-none`}>
+                    {tool.shortcut}
+                  </span>
                 </Toggle>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="flex items-center gap-2 px-2">

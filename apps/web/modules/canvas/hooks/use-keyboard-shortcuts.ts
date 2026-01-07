@@ -31,12 +31,10 @@ export function useKeyboardShortcuts({
 }: UseKeyboardShortcutsOptions) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Ignore when typing in input fields
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
 
-      // When text tool is active, only allow Escape to exit
       if (currentTool === "text") {
         if (e.key === "Escape") {
           setTool("select");
@@ -46,14 +44,12 @@ export function useKeyboardShortcuts({
 
       const key = e.key.toLowerCase();
 
-      // Tool shortcuts (1-0)
       if (TOOL_SHORTCUTS[key] && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         setTool(TOOL_SHORTCUTS[key]);
         return;
       }
 
-      // Letter shortcuts for tools
       switch (key) {
         case "v":
           if (!e.ctrlKey && !e.metaKey) setTool("select");
@@ -92,7 +88,6 @@ export function useKeyboardShortcuts({
           break;
       }
 
-      // Undo/Redo
       if ((e.ctrlKey || e.metaKey) && key === "z") {
         e.preventDefault();
         if (e.shiftKey) {
@@ -103,27 +98,23 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      // Redo with Ctrl+Y
       if ((e.ctrlKey || e.metaKey) && key === "y") {
         e.preventDefault();
         redo();
         return;
       }
 
-      // Delete
       if (key === "delete" || key === "backspace") {
         e.preventDefault();
         deleteSelectedShapes();
         return;
       }
 
-      // Escape to deselect
       if (key === "escape") {
         deselectAll();
         return;
       }
 
-      // Zoom shortcuts
       if ((e.ctrlKey || e.metaKey) && (key === "=" || key === "+")) {
         e.preventDefault();
         zoomIn();

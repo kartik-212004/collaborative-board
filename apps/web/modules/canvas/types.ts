@@ -1,5 +1,3 @@
-// Canvas drawing types and constants
-
 export type Tool =
   | "select"
   | "hand"
@@ -30,7 +28,6 @@ export interface BaseShape {
   fillColor?: string;
   opacity: number;
   isSelected?: boolean;
-  // Text inside the shape
   label?: string;
   labelFontSize?: number;
 }
@@ -113,10 +110,28 @@ export interface HistoryState {
   future: Shape[][];
 }
 
-// WebSocket message types
-export interface DrawMessage {
+export interface ConnectedUser {
+  id: string;
   name: string;
-  type: "join" | "draw" | "update" | "delete" | "clear" | "user_joined" | "error";
+  color: string;
+  isDrawing: boolean;
+}
+
+export interface DrawMessage {
+  name?: string;
+  type:
+    | "join"
+    | "draw"
+    | "update"
+    | "delete"
+    | "clear"
+    | "user_joined"
+    | "user_left"
+    | "users_list"
+    | "drawing_start"
+    | "drawing_end"
+    | "error"
+    | "init";
   roomId: string;
   payload: {
     shape?: Shape;
@@ -124,10 +139,12 @@ export interface DrawMessage {
     shapeId?: string;
     timestamp?: number;
     message?: string;
+    users?: ConnectedUser[];
+    user?: ConnectedUser;
+    userId?: string;
   };
 }
 
-// Tool keyboard shortcuts
 export const TOOL_SHORTCUTS: Record<string, Tool> = {
   "1": "select",
   "2": "hand",
@@ -141,7 +158,6 @@ export const TOOL_SHORTCUTS: Record<string, Tool> = {
   "0": "eraser",
 };
 
-// Default canvas settings
 export const DEFAULT_CANVAS_STATE: Omit<CanvasState, "shapes"> = {
   selectedIds: [],
   zoom: 1,
@@ -153,45 +169,42 @@ export const DEFAULT_CANVAS_STATE: Omit<CanvasState, "shapes"> = {
   opacity: 1,
 };
 
-// Color palette for the canvas
 export const STROKE_COLORS = [
-  "#ffffff", // White
-  "#868e96", // Gray
-  "#fa5252", // Red
-  "#e64980", // Pink
-  "#be4bdb", // Purple
-  "#7950f2", // Violet
-  "#4c6ef5", // Indigo
-  "#228be6", // Blue
-  "#15aabf", // Cyan
-  "#12b886", // Teal
-  "#40c057", // Green
-  "#82c91e", // Lime
-  "#fab005", // Yellow
-  "#fd7e14", // Orange
+  "#ffffff",
+  "#868e96",
+  "#fa5252",
+  "#e64980",
+  "#be4bdb",
+  "#7950f2",
+  "#4c6ef5",
+  "#228be6",
+  "#15aabf",
+  "#12b886",
+  "#40c057",
+  "#82c91e",
+  "#fab005",
+  "#fd7e14",
 ];
 
 export const FILL_COLORS = [
   "transparent",
-  "#ffffff1a", // White 10%
-  "#868e961a", // Gray 10%
-  "#fa52521a", // Red 10%
-  "#e649801a", // Pink 10%
-  "#be4bdb1a", // Purple 10%
-  "#7950f21a", // Violet 10%
-  "#4c6ef51a", // Indigo 10%
-  "#228be61a", // Blue 10%
-  "#15aabf1a", // Cyan 10%
-  "#12b8861a", // Teal 10%
-  "#40c0571a", // Green 10%
-  "#82c91e1a", // Lime 10%
-  "#fab0051a", // Yellow 10%
-  "#fd7e141a", // Orange 10%
+  "#ffffff1a",
+  "#868e961a",
+  "#fa52521a",
+  "#e649801a",
+  "#be4bdb1a",
+  "#7950f21a",
+  "#4c6ef51a",
+  "#228be61a",
+  "#15aabf1a",
+  "#12b8861a",
+  "#40c0571a",
+  "#82c91e1a",
+  "#fab0051a",
+  "#fd7e141a",
 ];
 
 export const STROKE_WIDTHS = [1, 2, 4, 6];
-
-// Generate unique ID for shapes
 export function generateShapeId(): string {
   return `shape_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }

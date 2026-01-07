@@ -89,19 +89,15 @@ export function DrawingCanvas({
   const isDraggingShapesRef = useRef(false);
   const dragStartRef = useRef<Point | null>(null);
 
-  // Text input state
   const [textInput, setTextInput] = useState<{
     x: number;
     y: number;
     text: string;
     isEditing: boolean;
-    // For editing existing text or shape labels
     editingShapeId?: string;
     editingType?: "text" | "label";
   } | null>(null);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
-
-  // Resize handle state
   const [activeHandle, setActiveHandle] = useState<ResizeHandle | null>(null);
   const resizeStartRef = useRef<{
     handle: ResizeHandle;
@@ -110,7 +106,6 @@ export function DrawingCanvas({
     shapeId: string;
   } | null>(null);
 
-  // Get canvas coordinates from mouse event
   const getCanvasCoordinates = useCallback(
     (e: MouseEvent | React.MouseEvent): Point => {
       if (!canvasRef.current) return { x: 0, y: 0 };
@@ -123,7 +118,6 @@ export function DrawingCanvas({
     [pan, zoom]
   );
 
-  // Draw a single shape on the canvas
   const drawShape = useCallback(
     (ctx: CanvasRenderingContext2D, shape: Shape, isPreview = false) => {
       ctx.save();
@@ -156,7 +150,6 @@ export function DrawingCanvas({
           }
           ctx.stroke();
 
-          // Draw label inside rectangle
           if (rect.label) {
             const labelFontSize = rect.labelFontSize || 16;
             ctx.font = `${labelFontSize}px sans-serif`;
@@ -193,7 +186,6 @@ export function DrawingCanvas({
           }
           ctx.stroke();
 
-          // Draw label inside diamond
           if (diamond.label) {
             const labelFontSize = diamond.labelFontSize || 16;
             ctx.font = `${labelFontSize}px sans-serif`;
@@ -229,7 +221,6 @@ export function DrawingCanvas({
           }
           ctx.stroke();
 
-          // Draw label inside ellipse
           if (ellipse.label) {
             const labelFontSize = ellipse.labelFontSize || 16;
             ctx.font = `${labelFontSize}px sans-serif`;
@@ -258,7 +249,6 @@ export function DrawingCanvas({
           }
           ctx.stroke();
 
-          // Draw arrowhead at end
           const lastPoint = arrow.points[arrow.points.length - 1];
           const secondLastPoint = arrow.points[arrow.points.length - 2] || arrow.points[0];
           const angle = Math.atan2(lastPoint.y - secondLastPoint.y, lastPoint.x - secondLastPoint.x);
@@ -300,14 +290,12 @@ export function DrawingCanvas({
           ctx.beginPath();
           ctx.moveTo(pencil.points[0].x, pencil.points[0].y);
 
-          // Use quadratic curves for smooth lines
           for (let i = 1; i < pencil.points.length - 1; i++) {
             const xc = (pencil.points[i].x + pencil.points[i + 1].x) / 2;
             const yc = (pencil.points[i].y + pencil.points[i + 1].y) / 2;
             ctx.quadraticCurveTo(pencil.points[i].x, pencil.points[i].y, xc, yc);
           }
 
-          // Connect to the last point
           if (pencil.points.length > 1) {
             const lastPoint = pencil.points[pencil.points.length - 1];
             ctx.lineTo(lastPoint.x, lastPoint.y);
@@ -324,7 +312,6 @@ export function DrawingCanvas({
           ctx.textAlign = textShape.textAlign;
           ctx.textBaseline = "top";
 
-          // Draw text line by line
           const lines = textShape.text.split("\n");
           lines.forEach((line, index) => {
             ctx.fillText(line, textShape.x, textShape.y + index * textShape.fontSize * 1.2);
@@ -333,28 +320,25 @@ export function DrawingCanvas({
         }
       }
 
-      // Draw selection border with resize handles
       if (isSelected && !isPreview) {
         ctx.strokeStyle = "#6366f1";
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
 
-        // Get bounding box
         const bounds = getShapeBounds(shape);
         ctx.strokeRect(bounds.x - 4, bounds.y - 4, bounds.width + 8, bounds.height + 8);
         ctx.setLineDash([]);
 
-        // Draw resize handles (8 corners and edges)
         const handleSize = 8;
         const handles = [
-          { x: bounds.x - 4, y: bounds.y - 4 }, // nw
-          { x: bounds.x + bounds.width / 2, y: bounds.y - 4 }, // n
-          { x: bounds.x + bounds.width + 4, y: bounds.y - 4 }, // ne
-          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height / 2 }, // e
-          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height + 4 }, // se
-          { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }, // s
-          { x: bounds.x - 4, y: bounds.y + bounds.height + 4 }, // sw
-          { x: bounds.x - 4, y: bounds.y + bounds.height / 2 }, // w
+          { x: bounds.x - 4, y: bounds.y - 4 },
+          { x: bounds.x + bounds.width / 2, y: bounds.y - 4 },
+          { x: bounds.x + bounds.width + 4, y: bounds.y - 4 },
+          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height / 2 },
+          { x: bounds.x + bounds.width + 4, y: bounds.y + bounds.height + 4 },
+          { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 },
+          { x: bounds.x - 4, y: bounds.y + bounds.height + 4 },
+          { x: bounds.x - 4, y: bounds.y + bounds.height / 2 },
         ];
 
         ctx.fillStyle = "#ffffff";
@@ -374,7 +358,6 @@ export function DrawingCanvas({
     [selectedIds]
   );
 
-  // Get shape bounding box
   const getShapeBounds = (shape: Shape): { x: number; y: number; width: number; height: number } => {
     switch (shape.type) {
       case "rectangle":
@@ -408,7 +391,6 @@ export function DrawingCanvas({
       }
       case "text": {
         const textShape = shape as TextShape;
-        // Estimate text bounds
         const lines = textShape.text.split("\n");
         const lineHeight = textShape.fontSize * 1.2;
         const width = Math.max(...lines.map((line) => line.length * textShape.fontSize * 0.6), 100);
@@ -418,7 +400,6 @@ export function DrawingCanvas({
     }
   };
 
-  // Check if point is inside shape
   const isPointInShape = (point: Point, shape: Shape): boolean => {
     const bounds = getShapeBounds(shape);
     return (
@@ -429,10 +410,9 @@ export function DrawingCanvas({
     );
   };
 
-  // Check if point is on a resize handle, returns handle position or null
   const getResizeHandleAtPoint = (point: Point, shape: Shape): ResizeHandle | null => {
     const bounds = getShapeBounds(shape);
-    const handleSize = 12; // Slightly larger hit area
+    const handleSize = 12;
 
     const handles: { pos: ResizeHandle; x: number; y: number }[] = [
       { pos: "nw", x: bounds.x - 4, y: bounds.y - 4 },
@@ -458,7 +438,6 @@ export function DrawingCanvas({
     return null;
   };
 
-  // Get cursor for resize handle
   const getCursorForHandle = (handle: ResizeHandle): string => {
     const cursors: Record<ResizeHandle, string> = {
       nw: "nwse-resize",
@@ -473,29 +452,23 @@ export function DrawingCanvas({
     return cursors[handle];
   };
 
-  // Redraw the canvas
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    // Clear and set transform
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Apply zoom and pan
     ctx.setTransform(zoom, 0, 0, zoom, pan.x, pan.y);
 
-    // Draw all shapes
     shapes.forEach((shape) => drawShape(ctx, shape));
 
-    // Draw current shape being created
     if (currentShape) {
       drawShape(ctx, currentShape, true);
     }
   }, [shapes, currentShape, zoom, pan, drawShape]);
 
-  // Create shape from drawing state
   const createShape = useCallback(
     (startPoint: Point, currentPoint: Point): Shape | null => {
       const baseShape = {
@@ -578,27 +551,20 @@ export function DrawingCanvas({
     [tool, strokeColor, strokeWidth, fillColor, opacity]
   );
 
-  // Handle mouse down
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       const coords = getCanvasCoordinates(e);
-
-      // Handle panning
       if (tool === "hand" || e.button === 1) {
         isPanningRef.current = true;
         lastPanPointRef.current = { x: e.clientX, y: e.clientY };
         return;
       }
-
-      // Handle selection
       if (tool === "select") {
-        // First check if clicking on a resize handle of a selected shape
         for (const shapeId of selectedIds) {
           const shape = shapes.find((s) => s.id === shapeId);
           if (shape) {
             const handle = getResizeHandleAtPoint(coords, shape);
             if (handle) {
-              // Start resizing
               resizeStartRef.current = {
                 handle,
                 startPoint: coords,
@@ -614,21 +580,15 @@ export function DrawingCanvas({
         const clickedShape = [...shapes].reverse().find((s) => isPointInShape(coords, s));
         if (clickedShape) {
           onSelectShape(clickedShape.id, e.shiftKey);
-
-          // Start dragging selected shapes
           isDraggingShapesRef.current = true;
           dragStartRef.current = coords;
         } else {
           onDeselectAll();
-
-          // Start marquee selection
           selectionStartRef.current = coords;
           setSelectionBox({ x: coords.x, y: coords.y, width: 0, height: 0 });
         }
         return;
       }
-
-      // Handle eraser
       if (tool === "eraser") {
         const shapeToDelete = [...shapes].reverse().find((s) => isPointInShape(coords, s));
         if (shapeToDelete) {
@@ -636,8 +596,6 @@ export function DrawingCanvas({
         }
         return;
       }
-
-      // Handle pencil (freehand drawing)
       if (tool === "pencil") {
         const pencilShape: PencilShape = {
           id: generateShapeId(),
@@ -654,10 +612,7 @@ export function DrawingCanvas({
         onUpdateDrawing(coords, pencilShape);
         return;
       }
-
-      // Start shape drawing
       if (["rectangle", "diamond", "ellipse", "arrow", "line"].includes(tool)) {
-        // Clear any stale selection state
         selectionStartRef.current = null;
         setSelectionBox(null);
         isDraggingShapesRef.current = false;
@@ -683,10 +638,8 @@ export function DrawingCanvas({
     ]
   );
 
-  // Handle mouse move
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      // Handle panning
       if (isPanningRef.current && lastPanPointRef.current) {
         const dx = e.clientX - lastPanPointRef.current.x;
         const dy = e.clientY - lastPanPointRef.current.y;
@@ -695,7 +648,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Handle resizing shapes
       if (tool === "select" && resizeStartRef.current) {
         const coords = getCanvasCoordinates(e);
         const { handle, startPoint, originalBounds, shapeId } = resizeStartRef.current;
@@ -711,7 +663,6 @@ export function DrawingCanvas({
             let newWidth = originalBounds.width;
             let newHeight = originalBounds.height;
 
-            // Calculate new bounds based on handle
             switch (handle) {
               case "nw":
                 newX = originalBounds.x + dx;
@@ -749,7 +700,6 @@ export function DrawingCanvas({
                 break;
             }
 
-            // Ensure minimum size
             const minSize = 10;
             if (newWidth < minSize) {
               if (handle.includes("w")) {
@@ -764,7 +714,6 @@ export function DrawingCanvas({
               newHeight = minSize;
             }
 
-            // Apply resize based on shape type
             switch (shape.type) {
               case "rectangle":
               case "diamond":
@@ -779,7 +728,6 @@ export function DrawingCanvas({
                 } as Shape;
               case "text": {
                 const textShape = shape as TextShape;
-                // Scale fontSize based on height change
                 const scaleY = newHeight / originalBounds.height;
                 const newFontSize = Math.max(8, Math.round(textShape.fontSize * scaleY));
                 return {
@@ -789,6 +737,21 @@ export function DrawingCanvas({
                   fontSize: newFontSize,
                 } as Shape;
               }
+              case "arrow":
+              case "line":
+              case "pencil": {
+                const pointsShape = shape as ArrowShape | LineShape | PencilShape;
+                const safeWidth = Math.max(originalBounds.width, 10);
+                const safeHeight = Math.max(originalBounds.height, 10);
+                const scaleX = Math.min(5, Math.max(0.2, newWidth / safeWidth));
+                const scaleY = Math.min(5, Math.max(0.2, newHeight / safeHeight));
+
+                const newPoints = pointsShape.points.map((p) => ({
+                  x: newX + (p.x - originalBounds.x) * scaleX,
+                  y: newY + (p.y - originalBounds.y) * scaleY,
+                }));
+                return { ...pointsShape, points: newPoints } as Shape;
+              }
               default:
                 return shape;
             }
@@ -797,13 +760,10 @@ export function DrawingCanvas({
         return;
       }
 
-      // Handle dragging selected shapes (only for select tool)
       if (tool === "select" && isDraggingShapesRef.current && dragStartRef.current) {
         const coords = getCanvasCoordinates(e);
         const dx = coords.x - dragStartRef.current.x;
         const dy = coords.y - dragStartRef.current.y;
-
-        // Update drag start to current position for incremental movement
         dragStartRef.current = coords;
 
         onSetLiveShapes((prevShapes) =>
@@ -830,7 +790,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Handle marquee selection update (only for select tool)
       if (tool === "select" && selectionStartRef.current) {
         const coords = getCanvasCoordinates(e);
         const x = Math.min(selectionStartRef.current.x, coords.x);
@@ -854,7 +813,6 @@ export function DrawingCanvas({
 
       const coords = getCanvasCoordinates(e);
 
-      // Handle pencil drawing
       if (tool === "pencil" && currentShape?.type === "pencil") {
         const updatedPencil: PencilShape = {
           ...(currentShape as PencilShape),
@@ -864,7 +822,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Update shape preview
       const shape = createShape(startPoint, coords);
       if (shape) {
         onUpdateDrawing(coords, shape);
@@ -887,42 +844,30 @@ export function DrawingCanvas({
     ]
   );
 
-  // Handle mouse up
   const handleMouseUp = useCallback(() => {
-    // End panning
     if (isPanningRef.current) {
       isPanningRef.current = false;
       lastPanPointRef.current = null;
       return;
     }
-
-    // End resizing
     if (tool === "select" && resizeStartRef.current) {
       resizeStartRef.current = null;
       setActiveHandle(null);
       onCommitShapes(shapes);
       return;
     }
-
-    // End dragging shapes (only when select tool is active)
     if (tool === "select" && isDraggingShapesRef.current) {
       isDraggingShapesRef.current = false;
       dragStartRef.current = null;
-      // Shapes are already updated via setLiveShapes, just commit to history
       onCommitShapes(shapes);
       return;
     }
-
-    // End marquee selection (only when select tool is active)
     if (tool === "select" && selectionStartRef.current) {
       selectionStartRef.current = null;
       setSelectionBox(null);
       return;
     }
-
-    // Finish drawing and add shape (for drawing tools)
     if (currentShape) {
-      // Only add shape if it has meaningful size
       const bounds = getShapeBounds(currentShape);
       if (bounds.width > 2 || bounds.height > 2 || currentShape.type === "pencil") {
         onAddShape(currentShape);
@@ -931,18 +876,13 @@ export function DrawingCanvas({
 
     onFinishDrawing();
   }, [currentShape, onAddShape, onFinishDrawing, onCommitShapes, shapes, tool]);
-
-  // Handle wheel for zooming
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
 
       if (e.ctrlKey || e.metaKey) {
-        // Zoom
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
         const newZoom = Math.max(0.1, Math.min(5, zoom * delta));
-
-        // Zoom towards cursor position while keeping point under cursor stable
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
           const mouseX = e.clientX - rect.left;
@@ -956,7 +896,6 @@ export function DrawingCanvas({
 
         onSetZoom(newZoom);
       } else {
-        // Pan
         onPanChange({
           x: pan.x - e.deltaX,
           y: pan.y - e.deltaY,
@@ -965,8 +904,6 @@ export function DrawingCanvas({
     },
     [zoom, pan, onPanChange, onSetZoom]
   );
-
-  // Update canvas size on resize
   useEffect(() => {
     const updateCanvasSize = () => {
       const canvas = canvasRef.current;
@@ -982,13 +919,9 @@ export function DrawingCanvas({
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, [redrawCanvas]);
-
-  // Redraw on state changes
   useEffect(() => {
     redrawCanvas();
   }, [redrawCanvas]);
-
-  // Add wheel event listener
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -997,7 +930,6 @@ export function DrawingCanvas({
     return () => canvas.removeEventListener("wheel", handleWheel);
   }, [handleWheel]);
 
-  // Set cursor based on tool and active handle
   const getCursor = () => {
     if (activeHandle) {
       return getCursorForHandle(activeHandle);
@@ -1016,7 +948,6 @@ export function DrawingCanvas({
     }
   };
 
-  // Text size mapping
   const TEXT_SIZE_MAP = {
     xs: 14,
     md: 18,
@@ -1024,7 +955,6 @@ export function DrawingCanvas({
     xxl: 42,
   };
 
-  // Calculate text dimensions for a given text and font size
   const measureTextDimensions = useCallback(
     (text: string, fontSize: number): { width: number; height: number } => {
       const canvas = canvasRef.current;
@@ -1037,18 +967,16 @@ export function DrawingCanvas({
       const maxWidth = Math.max(...lines.map((line) => ctx.measureText(line).width));
       const totalHeight = lines.length * lineHeight;
 
-      return { width: maxWidth + 20, height: totalHeight + 20 }; // Add padding
+      return { width: maxWidth + 20, height: totalHeight + 20 };
     },
     []
   );
 
-  // Handle text input submission
   const handleTextSubmit = useCallback(() => {
     if (!textInput) {
       return;
     }
 
-    // Editing existing text shape
     if (textInput.editingShapeId && textInput.editingType === "text") {
       if (textInput.text.trim()) {
         onUpdateShape(textInput.editingShapeId, { text: textInput.text } as Partial<TextShape>);
@@ -1057,7 +985,6 @@ export function DrawingCanvas({
       return;
     }
 
-    // Editing shape label - auto-resize shape if needed
     if (textInput.editingShapeId && textInput.editingType === "label") {
       const fontSize = TEXT_SIZE_MAP[textSize];
       const labelText = textInput.text.trim();
@@ -1072,7 +999,6 @@ export function DrawingCanvas({
             labelFontSize: fontSize,
           };
 
-          // Auto-resize shape if text is larger than shape
           if (shape.type === "rectangle" || shape.type === "diamond") {
             const rectShape = shape as RectangleShape | DiamondShape;
             if (textDimensions.width > rectShape.width) {
@@ -1096,7 +1022,6 @@ export function DrawingCanvas({
           onUpdateShape(textInput.editingShapeId, updates);
         }
       } else {
-        // Clear label if empty
         onUpdateShape(textInput.editingShapeId, {
           label: undefined,
           labelFontSize: undefined,
@@ -1107,7 +1032,6 @@ export function DrawingCanvas({
       return;
     }
 
-    // Creating new text shape
     if (textInput.text.trim()) {
       const fontSize = TEXT_SIZE_MAP[textSize];
       const textShape: TextShape = {
@@ -1140,12 +1064,10 @@ export function DrawingCanvas({
     shapes,
   ]);
 
-  // Handle double-click for text input anywhere on canvas
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       const coords = getCanvasCoordinates(e);
 
-      // Check if double-clicking on an existing text shape (to edit it)
       const clickedTextShape = [...shapes]
         .reverse()
         .find((s) => s.type === "text" && isPointInShape(coords, s)) as TextShape | undefined;
@@ -1163,7 +1085,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Check if double-clicking inside a shape (to add/edit label)
       const clickedShape = [...shapes]
         .reverse()
         .find((s) => ["rectangle", "diamond", "ellipse"].includes(s.type) && isPointInShape(coords, s));
@@ -1181,7 +1102,6 @@ export function DrawingCanvas({
         return;
       }
 
-      // Otherwise create new text at click position
       setTextInput({
         x: coords.x,
         y: coords.y,
@@ -1192,7 +1112,6 @@ export function DrawingCanvas({
     [getCanvasCoordinates, shapes]
   );
 
-  // Focus text input when it becomes active
   useEffect(() => {
     if (textInput?.isEditing && textInputRef.current) {
       textInputRef.current.focus();
@@ -1223,11 +1142,9 @@ export function DrawingCanvas({
         />
       )}
 
-      {/* Text input overlay */}
       {textInput &&
         textInput.isEditing &&
         (() => {
-          // Get font size - use existing if editing, otherwise use selected size
           let fontSize = TEXT_SIZE_MAP[textSize];
           if (textInput.editingShapeId && textInput.editingType === "text") {
             const editingShape = shapes.find((s) => s.id === textInput.editingShapeId) as
@@ -1243,7 +1160,6 @@ export function DrawingCanvas({
             }
           }
 
-          // For labels, center the input
           const isLabel = textInput.editingType === "label";
 
           return (
@@ -1270,7 +1186,6 @@ export function DrawingCanvas({
               value={textInput.text}
               onChange={(e) => {
                 setTextInput({ ...textInput, text: e.target.value });
-                // Auto-resize the textarea
                 if (textInputRef.current) {
                   textInputRef.current.style.width = "auto";
                   textInputRef.current.style.height = "auto";
@@ -1282,7 +1197,6 @@ export function DrawingCanvas({
                 if (e.key === "Escape") {
                   setTextInput(null);
                 }
-                // Stop propagation to prevent keyboard shortcuts
                 e.stopPropagation();
               }}
               onBlur={handleTextSubmit}

@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 type InputProps = Omit<InputPrimitive.Props & React.RefAttributes<HTMLInputElement>, "size"> & {
   size?: "sm" | "default" | "lg" | number;
   unstyled?: boolean;
+  inputClassName?: string;
 };
 
-function Input({ className, size = "default", unstyled = false, ...props }: InputProps) {
+function Input({ className, inputClassName, size = "default", unstyled = false, ...props }: InputProps) {
   return (
     <span
       className={
@@ -31,7 +32,8 @@ function Input({ className, size = "default", unstyled = false, ...props }: Inpu
           props.type === "search" &&
             "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
           props.type === "file" &&
-            "text-muted-foreground file:text-foreground file:me-3 file:bg-transparent file:text-sm file:font-medium"
+            "text-muted-foreground file:text-foreground file:me-3 file:bg-transparent file:text-sm file:font-medium",
+          inputClassName
         )}
         data-slot="input"
         size={typeof size === "number" ? size : undefined}

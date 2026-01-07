@@ -130,7 +130,9 @@ export default function SignInPage() {
                   placeholder="you@company.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="h-8 rounded-md border border-white/20 bg-white px-2 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                  unstyled
+                  className="w-full"
+                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                   required
                   disabled={isLoading}
                 />
@@ -148,7 +150,9 @@ export default function SignInPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="h-8 rounded-md border border-white/20 bg-white px-2 pr-12 text-black placeholder:text-neutral-500 focus:border-white/40 focus:ring-2 focus:ring-white/30"
+                    unstyled
+                    className="w-full"
+                    inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 pr-12 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
                     required
                     disabled={isLoading}
                   />

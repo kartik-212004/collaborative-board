@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, use, useState, useCallback } from "react";
 
-import { PanelLeftClose, PanelLeft } from "lucide-react";
+import { PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Users } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -18,19 +18,21 @@ import {
   STROKE_COLORS,
   type Shape,
   type DrawMessage,
+  type ConnectedUser,
 } from "@/modules/canvas";
 
 export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params);
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [connectedUsers, setConnectedUsers] = useState(1);
+  const [connectedUsers, setConnectedUsers] = useState<ConnectedUser[]>([]);
+  const [currentUser, setCurrentUser] = useState<ConnectedUser | null>(null);
   const [strokeSize, setStrokeSize] = useState(2);
   const [textSize, setTextSize] = useState<"xs" | "md" | "lg" | "xxl">("md");
   const [showControls, setShowControls] = useState(true);
+  const [showPresence, setShowPresence] = useState(true);
   const { isAuthenticated, user, isLoading } = useAuth();
 
-  // Canvas state management
   const {
     canvasState,
     drawingState,
@@ -65,26 +67,40 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     finishDrawing,
   } = useCanvasState();
 
-  // Keyboard shortcuts
+  const handleDeleteSelectedShapesForShortcut = useCallback(() => {
+    const selectedIds = canvasState.selectedIds;
+    selectedIds.forEach((shapeId) => {
+      deleteShape(shapeId);
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const message: DrawMessage = {
+          name: user?.name || "Anonymous",
+          type: "delete",
+          roomId: roomId,
+          payload: {
+            shapeId,
+            timestamp: Date.now(),
+          },
+        };
+        socketRef.current.send(JSON.stringify(message));
+      }
+    });
+  }, [canvasState.selectedIds, deleteShape, roomId, user?.name]);
+
   useKeyboardShortcuts({
     currentTool: canvasState.tool,
     setTool,
     undo,
     redo,
-    deleteSelectedShapes,
+    deleteSelectedShapes: handleDeleteSelectedShapesForShortcut,
     selectAll,
     deselectAll,
     zoomIn,
     zoomOut,
     resetZoom,
   });
-
-  // Keep stroke width in sync with stroke size control
   useEffect(() => {
     setStrokeWidth(strokeSize);
   }, [strokeSize, setStrokeWidth]);
-
-  // WebSocket connection
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -110,7 +126,8 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     };
 
     socketRef.current.onerror = (err) => {
-      console.error("WebSocket Error:", err);
+      console.error("WebSocket Error - Could not connect to:", process.env.NEXT_PUBLIC_WS_URL);
+      console.error("Make sure ws-backend is running: pnpm --filter ws-backend dev");
       setIsConnected(false);
     };
 
@@ -123,6 +140,17 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         const message: DrawMessage = JSON.parse(event.data);
 
         switch (message.type) {
+          case "init":
+            if (message.payload.shapes) {
+              setShapes(message.payload.shapes);
+            }
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            if (message.payload.user) {
+              setCurrentUser(message.payload.user);
+            }
+            break;
           case "draw":
             if (message.payload.shape) {
               addShape(message.payload.shape);
@@ -142,7 +170,20 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
             clearCanvas();
             break;
           case "user_joined":
-            setConnectedUsers((prev) => prev + 1);
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            break;
+          case "user_left":
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
+            break;
+          case "drawing_start":
+          case "drawing_end":
+            if (message.payload.users) {
+              setConnectedUsers(message.payload.users);
+            }
             break;
         }
       } catch (error) {
@@ -155,9 +196,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         socketRef.current.close();
       }
     };
-  }, [roomId, user?.name, addShape, updateShape, deleteShape, clearCanvas]);
-
-  // Send shape to other users
+  }, [roomId, user?.name, addShape, updateShape, deleteShape, clearCanvas, setShapes]);
   const handleAddShape = useCallback(
     (shape: Shape) => {
       addShape(shape);
@@ -177,8 +216,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     },
     [addShape, roomId, user?.name]
   );
-
-  // Send delete to other users
   const handleDeleteShape = useCallback(
     (shapeId: string) => {
       deleteShape(shapeId);
@@ -199,9 +236,86 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     [deleteShape, roomId, user?.name]
   );
 
+  const handleUpdateShape = useCallback(
+    (shapeId: string, updates: Partial<Shape>) => {
+      updateShape(shapeId, updates);
+
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        const updatedShape = canvasState.shapes.find((s) => s.id === shapeId);
+        if (updatedShape) {
+          const message: DrawMessage = {
+            name: user?.name || "Anonymous",
+            type: "update",
+            roomId: roomId,
+            payload: {
+              shape: { ...updatedShape, ...updates } as Shape,
+              timestamp: Date.now(),
+            },
+          };
+          socketRef.current.send(JSON.stringify(message));
+        }
+      }
+    },
+    [updateShape, roomId, user?.name, canvasState.shapes]
+  );
+
+  const handleClearCanvas = useCallback(() => {
+    clearCanvas();
+
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      const message: DrawMessage = {
+        name: user?.name || "Anonymous",
+        type: "clear",
+        roomId: roomId,
+        payload: {
+          timestamp: Date.now(),
+        },
+      };
+      socketRef.current.send(JSON.stringify(message));
+    }
+  }, [clearCanvas, roomId, user?.name]);
+
+  const sendDrawingStart = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          name: user?.name || "Anonymous",
+          type: "drawing_start",
+          roomId: roomId,
+          payload: {},
+        })
+      );
+    }
+  }, [roomId, user?.name]);
+
+  const sendDrawingEnd = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          name: user?.name || "Anonymous",
+          type: "drawing_end",
+          roomId: roomId,
+          payload: {},
+        })
+      );
+    }
+  }, [roomId, user?.name]);
+
+  const handleStartDrawing = useCallback(
+    (point: { x: number; y: number }) => {
+      startDrawing(point);
+      sendDrawingStart();
+    },
+    [startDrawing, sendDrawingStart]
+  );
+
+  const handleFinishDrawing = useCallback(() => {
+    finishDrawing();
+    sendDrawingEnd();
+  }, [finishDrawing, sendDrawingEnd]);
+
   return (
     <div className="bg-canvas-background relative h-screen w-screen overflow-hidden">
-      {/* Drawing Canvas */}
       <DrawingCanvas
         shapes={canvasState.shapes}
         currentShape={drawingState.currentShape}
@@ -214,11 +328,11 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         opacity={canvasState.opacity}
         textSize={textSize}
         selectedIds={canvasState.selectedIds}
-        onStartDrawing={startDrawing}
+        onStartDrawing={handleStartDrawing}
         onUpdateDrawing={updateDrawing}
-        onFinishDrawing={finishDrawing}
+        onFinishDrawing={handleFinishDrawing}
         onAddShape={handleAddShape}
-        onUpdateShape={updateShape}
+        onUpdateShape={handleUpdateShape}
         onSelectShape={selectShape}
         onSetSelection={setSelection}
         onSetLiveShapes={setLiveShapes}
@@ -252,8 +366,14 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         </div>
 
         {/* Right - Header controls */}
-        <div className="pointer-events-auto absolute right-0 top-0">
-          <CanvasHeader roomId={roomId} isConnected={isConnected} connectedUsers={connectedUsers} />
+        <div className="pointer-events-auto absolute right-0 top-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPresence(!showPresence)}
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover flex h-10 w-10 items-center justify-center rounded-lg border shadow-lg">
+            {showPresence ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+          </button>
+          <CanvasHeader roomId={roomId} isConnected={isConnected} connectedUsers={connectedUsers.length} />
         </div>
       </div>
 
@@ -265,7 +385,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
               <span className="text-sm font-semibold">Controls</span>
             </div>
             <div className="space-y-4 px-4 py-3 text-sm">
-              {/* Stroke Size */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-white/90">Stroke</span>
@@ -289,7 +408,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                   </button>
                 </div>
               </div>
-              {/* Color Picker */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-white/90">Color</span>
@@ -301,7 +419,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                       type="button"
                       onClick={() => {
                         setStrokeColor(color);
-                        // Also update selected shapes' color
                         if (canvasState.selectedIds.length > 0) {
                           updateSelectedShapes({ strokeColor: color });
                         }
@@ -316,7 +433,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                   ))}
                 </div>
               </div>
-              {/* Text Size */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-white/90">Text Size</span>
@@ -365,19 +481,64 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
       </div>
 
       {/* Right sidebar for presence */}
-      {/* <div className="pointer-events-none absolute right-4 top-20 z-10">
-        <div className="bg-background pointer-events-auto w-40 rounded-xl border border-white/10 px-4 py-3 text-white shadow-xl">
-          <div className="text-sm font-semibold text-white/90">People</div>
-          <div className="mt-2 text-3xl font-bold leading-tight">{connectedUsers}</div>
-          <div className="text-xs text-white/50">active {connectedUsers === 1 ? "user" : "users"}</div>
-          <div
-            className={`mt-3 inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium 
-              `}>
-            <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-400" : "bg-rose-400"}`} />
-            {isConnected ? "Online" : "Offline"}
+      {showPresence && (
+        <div className="pointer-events-none absolute right-4 top-20 z-10">
+          <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <span className="text-sm font-semibold">People</span>
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white/10 px-1.5 text-xs font-medium">
+                {connectedUsers.length}
+              </span>
+            </div>
+            <div className="max-h-64 overflow-y-auto px-2 py-2">
+              {connectedUsers.length === 0 ? (
+                <div className="px-2 py-3 text-center text-xs text-white/50">No one else is here yet</div>
+              ) : (
+                <div className="space-y-1">
+                  {connectedUsers.map((u) => (
+                    <div key={u.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/5">
+                      <div
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white"
+                        style={{ backgroundColor: u.color }}>
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-medium text-white/90">
+                            {u.name}
+                            {currentUser?.id === u.id && (
+                              <span className="ml-1 text-xs text-white/50">(you)</span>
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs">
+                          {u.isDrawing ? (
+                            <>
+                              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                              <span className="text-emerald-400">Drawing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
+                              <span className="text-white/50">Idle</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="border-t border-white/10 px-4 py-2">
+              <div className="flex items-center gap-2 text-xs">
+                <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-400" : "bg-rose-400"}`} />
+                <span className="text-white/60">{isConnected ? "Connected" : "Disconnected"}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div> */}
+      )}
     </div>
   );
 }

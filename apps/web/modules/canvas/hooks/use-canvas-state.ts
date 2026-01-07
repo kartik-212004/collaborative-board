@@ -34,12 +34,10 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     future: [],
   });
 
-  // Tool selection
   const setTool = useCallback((tool: Tool) => {
     setCanvasState((prev) => ({ ...prev, tool }));
   }, []);
 
-  // Zoom controls
   const setZoom = useCallback((zoom: number) => {
     setCanvasState((prev) => ({
       ...prev,
@@ -69,12 +67,10 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     }));
   }, []);
 
-  // Pan controls
   const setPan = useCallback((pan: Point) => {
     setCanvasState((prev) => ({ ...prev, pan }));
   }, []);
 
-  // Style controls
   const setStrokeColor = useCallback((strokeColor: string) => {
     setCanvasState((prev) => ({ ...prev, strokeColor }));
   }, []);
@@ -91,7 +87,6 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     setCanvasState((prev) => ({ ...prev, opacity }));
   }, []);
 
-  // History management
   const pushToHistory = useCallback((shapes: Shape[]) => {
     const history = historyRef.current;
     const newPast = [...history.past, history.present].slice(-MAX_HISTORY_SIZE);
@@ -136,8 +131,6 @@ export function useCanvasState(initialShapes: Shape[] = []) {
 
   const canUndo = historyRef.current.past.length > 0;
   const canRedo = historyRef.current.future.length > 0;
-
-  // Shape operations
   const addShape = useCallback(
     (shape: Shape) => {
       setCanvasState((prev) => {
@@ -177,7 +170,6 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     [pushToHistory]
   );
 
-  // Update selected shapes with new properties
   const updateSelectedShapes = useCallback(
     (updates: Partial<Shape>) => {
       setCanvasState((prev) => {
@@ -213,7 +205,6 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     [pushToHistory]
   );
 
-  // Selection operations
   const selectShape = useCallback((shapeId: string, addToSelection = false) => {
     setCanvasState((prev) => ({
       ...prev,
@@ -236,7 +227,6 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     }));
   }, []);
 
-  // Drawing state operations
   const startDrawing = useCallback((point: Point) => {
     setDrawingState({
       isDrawing: true,
@@ -263,41 +253,27 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     });
   }, []);
 
-  // Live shape updates without pushing history (useful for dragging)
   const setLiveShapes = useCallback((updater: (prev: Shape[]) => Shape[]) => {
     setCanvasState((prev) => ({ ...prev, shapes: updater(prev.shapes) }));
   }, []);
 
   return {
-    // State
     canvasState,
     drawingState,
-
-    // Tool actions
     setTool,
-
-    // Zoom actions
     setZoom,
     zoomIn,
     zoomOut,
     resetZoom,
-
-    // Pan actions
     setPan,
-
-    // Style actions
     setStrokeColor,
     setStrokeWidth,
     setFillColor,
     setOpacity,
-
-    // History actions
     undo,
     redo,
     canUndo,
     canRedo,
-
-    // Shape actions
     addShape,
     updateShape,
     deleteShape,
@@ -305,19 +281,13 @@ export function useCanvasState(initialShapes: Shape[] = []) {
     updateSelectedShapes,
     clearCanvas,
     setShapes,
-
-    // Selection actions
     selectShape,
     deselectAll,
     selectAll,
     setSelection,
-
-    // Drawing actions
     startDrawing,
     updateDrawing,
     finishDrawing,
-
-    // Live updates
     setLiveShapes,
   };
 }
