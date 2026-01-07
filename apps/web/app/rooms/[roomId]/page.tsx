@@ -214,8 +214,12 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         };
         socketRef.current.send(JSON.stringify(message));
       }
+
+      if (canvasState.tool !== "select" && canvasState.tool !== "hand" && canvasState.tool !== "eraser") {
+        setTool("select");
+      }
     },
-    [addShape, roomId, user?.name]
+    [addShape, roomId, user?.name, canvasState.tool, setTool]
   );
   const handleDeleteShape = useCallback(
     (shapeId: string) => {
