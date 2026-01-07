@@ -1374,7 +1374,6 @@ export function DrawingCanvas({
                 e.stopPropagation();
               }}
               onBlur={handleTextSubmit}
-              placeholder={isLabel ? "title" : "text"}
             />
           );
         })()}
