@@ -7,6 +7,7 @@ interface User {
   email: string;
   name: string;
   id: string;
+  photo?: string;
 }
 
 interface AuthState {
@@ -34,11 +35,12 @@ export function useAuth(): AuthState & {
       const userEmail = localStorage.getItem("userEmail");
       const userName = localStorage.getItem("userName");
       const userId = localStorage.getItem("userId");
+      const userPhoto = localStorage.getItem("userPhoto");
 
       if (token && userEmail && userName && userId) {
         setAuthState({
           token,
-          user: { email: userEmail, name: userName, id: userId },
+          user: { email: userEmail, name: userName, id: userId, photo: userPhoto || undefined },
           isAuthenticated: true,
           isLoading: false,
         });
@@ -63,6 +65,11 @@ export function useAuth(): AuthState & {
       localStorage.setItem("userEmail", user.email);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userId", user.id);
+      if (user.photo) {
+        localStorage.setItem("userPhoto", user.photo);
+      } else {
+        localStorage.removeItem("userPhoto");
+      }
 
       setAuthState({
         token,
@@ -81,6 +88,7 @@ export function useAuth(): AuthState & {
       localStorage.removeItem("userEmail");
       localStorage.removeItem("userName");
       localStorage.removeItem("userId");
+      localStorage.removeItem("userPhoto");
 
       setAuthState({
         token: null,

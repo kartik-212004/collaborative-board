@@ -8,29 +8,12 @@ const rooms: Record<string, WebSocket[]> = {};
 interface ConnectedUser {
   id: string;
   name: string;
-  color: string;
+  photo?: string;
   isDrawing: boolean;
 }
 
 const roomUsers: Record<string, Map<WebSocket, ConnectedUser>> = {};
 const wsToRoom: Map<WebSocket, string> = new Map();
-
-const USER_COLORS = [
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#f43f5e",
-  "#06b6d4",
-];
-
-function getRandomColor(): string {
-  return USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)]!;
-}
 
 function generateUserId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -42,6 +25,7 @@ const wss = new WebSocketServer({
 
 interface MessageType {
   name: string;
+  photo?: string;
   type: "join" | "draw" | "update" | "delete" | "clear" | "drawing_start" | "drawing_end";
   roomId: string;
   payload: {
@@ -78,7 +62,7 @@ wss.on("connection", (ws: WebSocket, request) => {
   ws.on("message", async (data) => {
     try {
       const message: MessageType = JSON.parse(data.toString());
-      const { roomId, name, type, payload } = message;
+      const { roomId, name, photo, type, payload } = message;
 
       switch (type) {
         case "join":
@@ -109,7 +93,7 @@ wss.on("connection", (ws: WebSocket, request) => {
             const newUser: ConnectedUser = {
               id: generateUserId(),
               name: name || "Anonymous",
-              color: getRandomColor(),
+              photo: photo,
               isDrawing: false,
             };
             roomUsers[roomId].set(ws, newUser);
