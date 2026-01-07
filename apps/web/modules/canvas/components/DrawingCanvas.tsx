@@ -89,6 +89,8 @@ export function DrawingCanvas({
   } | null>(null);
   const isDraggingShapesRef = useRef(false);
   const dragStartRef = useRef<Point | null>(null);
+  const isDuplicatingRef = useRef(false);
+  const originalShapesBeforeDuplicateRef = useRef<Shape[] | null>(null);
 
   const [textInput, setTextInput] = useState<{
     x: number;
@@ -688,9 +690,31 @@ export function DrawingCanvas({
 
         const clickedShape = [...shapes].reverse().find((s) => isPointInShape(coords, s));
         if (clickedShape) {
-          onSelectShape(clickedShape.id, e.shiftKey);
-          isDraggingShapesRef.current = true;
-          dragStartRef.current = coords;
+          if (e.altKey) {
+            const shapesToDuplicate = selectedIds.includes(clickedShape.id)
+              ? shapes.filter((s) => selectedIds.includes(s.id))
+              : [clickedShape];
+
+            originalShapesBeforeDuplicateRef.current = [...shapes];
+
+            const duplicates = shapesToDuplicate.map((shape) => ({
+              ...shape,
+              id: generateShapeId(),
+            }));
+
+            const newShapes = [...shapes, ...duplicates];
+            onSetLiveShapes(() => newShapes);
+
+            onSetSelection(duplicates.map((d) => d.id));
+
+            isDuplicatingRef.current = true;
+            isDraggingShapesRef.current = true;
+            dragStartRef.current = coords;
+          } else {
+            onSelectShape(clickedShape.id, e.shiftKey);
+            isDraggingShapesRef.current = true;
+            dragStartRef.current = coords;
+          }
         } else {
           onDeselectAll();
           selectionStartRef.current = coords;
@@ -1004,6 +1028,8 @@ export function DrawingCanvas({
     if (tool === "select" && isDraggingShapesRef.current) {
       isDraggingShapesRef.current = false;
       dragStartRef.current = null;
+      isDuplicatingRef.current = false;
+      originalShapesBeforeDuplicateRef.current = null;
       onCommitShapes(shapes);
       return;
     }
