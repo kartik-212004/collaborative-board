@@ -117,6 +117,15 @@ export interface ConnectedUser {
   isDrawing: boolean;
 }
 
+export interface ChatMessagePayload {
+  id: string;
+  userId: string;
+  userName: string;
+  userPhoto?: string;
+  message: string;
+  timestamp: number;
+}
+
 export interface DrawMessage {
   name?: string;
   type:
@@ -131,7 +140,8 @@ export interface DrawMessage {
     | "drawing_start"
     | "drawing_end"
     | "error"
-    | "init";
+    | "init"
+    | "chat";
   roomId: string;
   payload: {
     shape?: Shape;
@@ -142,6 +152,7 @@ export interface DrawMessage {
     users?: ConnectedUser[];
     user?: ConnectedUser;
     userId?: string;
+    chatMessage?: ChatMessagePayload;
   };
 }
 

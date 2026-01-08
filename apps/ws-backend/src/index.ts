@@ -54,7 +54,7 @@ server.listen(WEBSOCKET_PORT, () => {
 interface MessageType {
   name: string;
   photo?: string;
-  type: "join" | "draw" | "update" | "delete" | "clear" | "drawing_start" | "drawing_end";
+  type: "join" | "draw" | "update" | "delete" | "clear" | "drawing_start" | "drawing_end" | "chat";
   roomId: string;
   payload: {
     shape?: any;
@@ -338,6 +338,37 @@ wss.on("connection", (ws: WebSocket, request) => {
                       type: "drawing_end",
                       roomId,
                       payload: { userId: user.id, users: usersList },
+                    })
+                  );
+                }
+              });
+            }
+          }
+          break;
+
+        case "chat":
+          if (roomUsers[roomId]) {
+            const user = roomUsers[roomId].get(ws);
+            if (user && payload.message) {
+              const chatMessage = {
+                id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                userId: user.id,
+                userName: user.name,
+                userPhoto: user.photo,
+                message: payload.message,
+                timestamp: Date.now(),
+              };
+              console.log(
+                `Broadcasting chat message to ${rooms[roomId]?.length || 0} clients in room ${roomId}:`,
+                chatMessage.message
+              );
+              rooms[roomId]?.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(
+                    JSON.stringify({
+                      type: "chat",
+                      roomId,
+                      payload: { chatMessage },
                     })
                   );
                 }

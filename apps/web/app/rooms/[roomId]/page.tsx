@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, use, useState, useCallback } from "react";
 
-import { PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Users } from "lucide-react";
+import { PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Users, MessageCircle } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -13,17 +13,20 @@ import {
   CanvasHint,
   CanvasFooter,
   DrawingCanvas,
+  ChatSidebar,
   useCanvasState,
   useKeyboardShortcuts,
   STROKE_COLORS,
   type Shape,
   type DrawMessage,
   type ConnectedUser,
+  type ChatMessage,
 } from "@/modules/canvas";
 
 export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params);
   const socketRef = useRef<WebSocket | null>(null);
+  const showChatRef = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState<ConnectedUser[]>([]);
   const [currentUser, setCurrentUser] = useState<ConnectedUser | null>(null);
@@ -31,6 +34,9 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
   const [textSize, setTextSize] = useState<"xs" | "md" | "lg" | "xxl">("md");
   const [showControls, setShowControls] = useState(true);
   const [showPresence, setShowPresence] = useState(true);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const { isAuthenticated, user, isLoading } = useAuth();
 
   const {
@@ -186,6 +192,15 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
               setConnectedUsers(message.payload.users);
             }
             break;
+          case "chat":
+            console.log("Received chat message:", message.payload.chatMessage);
+            if (message.payload.chatMessage) {
+              setChatMessages((prev) => [...prev, message.payload.chatMessage!]);
+              if (!showChatRef.current) {
+                setUnreadChatCount((prev) => prev + 1);
+              }
+            }
+            break;
         }
       } catch (error) {
         console.error("Error parsing message:", error);
@@ -306,6 +321,31 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     }
   }, [roomId, user?.name]);
 
+  const sendChatMessage = useCallback(
+    (message: string) => {
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        // Send to server - server will broadcast to all clients including us
+        socketRef.current.send(
+          JSON.stringify({
+            name: user?.name || "Anonymous",
+            type: "chat",
+            roomId: roomId,
+            payload: { message },
+          })
+        );
+      }
+    },
+    [roomId, user?.name]
+  );
+
+  const toggleChat = useCallback((open: boolean) => {
+    setShowChat(open);
+    showChatRef.current = open;
+    if (open) {
+      setUnreadChatCount(0);
+    }
+  }, []);
+
   const handleStartDrawing = useCallback(
     (point: { x: number; y: number }) => {
       startDrawing(point);
@@ -368,6 +408,17 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         </div>
 
         <div className="pointer-events-auto absolute right-0 top-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => toggleChat(!showChat)}
+            className="border-canvas-border bg-canvas-toolbar text-canvas-foreground hover:bg-canvas-hover relative flex h-8 w-8 items-center justify-center rounded-lg border shadow-lg">
+            <MessageCircle className="h-4 w-4" />
+            {unreadChatCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-medium text-white">
+                {unreadChatCount > 99 ? "99+" : unreadChatCount}
+              </span>
+            )}
+          </button>
           <button
             type="button"
             onClick={() => setShowPresence(!showPresence)}
@@ -543,6 +594,24 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                 <span className="text-white/60">{isConnected ? "Connected" : "Disconnected"}</span>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showChat && (
+        <div
+          className="pointer-events-none absolute right-4 z-10"
+          style={{ top: showPresence ? "340px" : "80px" }}>
+          <div className="pointer-events-auto">
+            <ChatSidebar
+              messages={chatMessages}
+              currentUserId={currentUser?.id ?? null}
+              onSendMessage={sendChatMessage}
+              isConnected={isConnected}
+              isOpen={showChat}
+              onClose={() => toggleChat(false)}
+              unreadCount={unreadChatCount}
+            />
           </div>
         </div>
       )}
