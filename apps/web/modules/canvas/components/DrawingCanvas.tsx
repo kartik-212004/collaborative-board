@@ -129,9 +129,9 @@ export function DrawingCanvas({
   );
 
   const drawShape = useCallback(
-    (ctx: CanvasRenderingContext2D, shape: Shape, isPreview = false) => {
+    (ctx: CanvasRenderingContext2D, shape: Shape, isPreview = false, isBeingEdited = false) => {
       ctx.save();
-      ctx.globalAlpha = shape.opacity;
+      ctx.globalAlpha = isBeingEdited ? shape.opacity * 0.1 : shape.opacity;
       ctx.strokeStyle = shape.strokeColor;
       ctx.lineWidth = shape.strokeWidth;
       ctx.lineCap = "round";
@@ -556,12 +556,15 @@ export function DrawingCanvas({
 
     ctx.setTransform(zoom, 0, 0, zoom, pan.x, pan.y);
 
-    shapes.forEach((shape) => drawShape(ctx, shape));
+    shapes.forEach((shape) => {
+      const isBeingEdited = textInput?.isEditing && textInput.editingShapeId === shape.id;
+      drawShape(ctx, shape, false, isBeingEdited);
+    });
 
     if (currentShape) {
       drawShape(ctx, currentShape, true);
     }
-  }, [shapes, currentShape, zoom, pan, drawShape]);
+  }, [shapes, currentShape, zoom, pan, drawShape, textInput]);
 
   const createShape = useCallback(
     (startPoint: Point, currentPoint: Point): Shape | null => {
@@ -1289,6 +1292,10 @@ export function DrawingCanvas({
   useEffect(() => {
     if (textInput?.isEditing && textInputRef.current) {
       textInputRef.current.focus();
+      textInputRef.current.setSelectionRange(
+        textInputRef.current.value.length,
+        textInputRef.current.value.length
+      );
     }
   }, [textInput?.isEditing]);
 

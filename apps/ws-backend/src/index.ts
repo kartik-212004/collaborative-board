@@ -42,10 +42,8 @@ function generateUserId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-// Attach WebSocket server to HTTP server
 const wss = new WebSocketServer({ server });
 
-// Start the HTTP server
 server.listen(WEBSOCKET_PORT, () => {
   console.log(`✅ WebSocket server running on port ${WEBSOCKET_PORT}`);
   console.log(`   Health check available at http://localhost:${WEBSOCKET_PORT}/health`);
