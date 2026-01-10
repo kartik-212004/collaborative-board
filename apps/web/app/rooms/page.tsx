@@ -219,7 +219,7 @@ export default function RoomsPage() {
           <Card className="border-white/20 bg-white/5">
             <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
-                <Label htmlFor="roomCode" className="text-sm text-white">
+                <Label htmlFor="roomCode" className="pb-2 text-sm text-white">
                   Room Code
                 </Label>
                 <Input
