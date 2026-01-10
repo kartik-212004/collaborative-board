@@ -13,6 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import Logo from "@/modules/home/logo";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -93,21 +95,28 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center px-4 py-10 text-white">
-      <div className="w-full max-w-lg space-y-8">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-10 text-white">
+      <div
+        className="absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}></div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+
+      <div className="relative z-10 w-full max-w-lg space-y-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-medium text-white/80">
+          className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-white/80">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black">
-            <Pencil className="h-4 w-4" />
+            <Logo />
           </span>
-          WhiteBoard
+          CollabDraw
         </Link>
 
         <Card className="border-white/10 bg-white/5 backdrop-blur">
           <CardHeader className="space-y-1 text-left">
             <CardTitle className="text-2xl font-semibold text-white">Create your account</CardTitle>
-            <CardDescription className="text-white/70">A simple start—just your basics.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             {error && (

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 
 import { useAuth } from "@/hooks/use-auth";
 
-import Header from "@/modules/Header";
+import { Navbar } from "@/modules/home";
 
 export default function RoomsPage() {
   const { isAuthenticated, isLoading, token } = useAuth();
@@ -175,8 +175,15 @@ export default function RoomsPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
+        <div
+          className="absolute inset-0 z-0 opacity-20"
+          style={{
+            backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+            backgroundSize: "40px 40px",
+          }}></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+        <div className="relative z-10 text-white">Loading...</div>
       </div>
     );
   }
@@ -186,61 +193,71 @@ export default function RoomsPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      <Header />
-      <div className="container mx-auto my-4 max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-white">Room</h1>
-          <p className="text-white/70">Create a new room or join an existing one</p>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-black">
+      <div
+        className="absolute inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}></div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
 
-        {error && (
-          <div className="mb-6 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-400">
-            {error}
+      <div className="relative z-10">
+        <Navbar />
+        <div className="container mx-auto max-w-md pb-10 pt-24">
+          <div className="mb-8 text-center">
+            <h1 className="mb-2 text-3xl font-bold text-white">Room</h1>
+            <p className="text-white/70">Create a new room or join an existing one</p>
           </div>
-        )}
 
-        <Card className="border-white/20 bg-white/5">
-          <CardContent className="space-y-6 p-6">
-            <div className="space-y-2">
-              <Label htmlFor="roomCode" className="text-sm text-white">
-                Room Code
-              </Label>
-              <Input
-                id="roomCode"
-                type="text"
-                placeholder="Enter code (e.g., AHG67)"
-                value={joinCode}
-                onChange={(e) => {
-                  setJoinCode(e.target.value.toUpperCase());
-                  if (error) setError("");
-                }}
-                maxLength={5}
-                className="h-8 border-white/20 bg-white bg-white/10 px-2 text-center font-mono text-lg tracking-wider placeholder:text-white/50 focus:border-white"
-              />
+          {error && (
+            <div className="mb-6 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-400">
+              {error}
             </div>
+          )}
 
-            <div className="space-y-3">
-              <Button
-                onClick={handleRoomCreate}
-                disabled={isCreating}
-                variant="outline"
-                className="w-full border-white/20 hover:bg-white/10 hover:text-white/70">
-                {isCreating ? "Creating Room" : "Create Room"}
-              </Button>
+          <Card className="border-white/20 bg-white/5">
+            <CardContent className="space-y-6 p-6">
+              <div className="space-y-2">
+                <Label htmlFor="roomCode" className="text-sm text-white">
+                  Room Code
+                </Label>
+                <Input
+                  id="roomCode"
+                  type="text"
+                  placeholder="Enter code (e.g., AHG67)"
+                  value={joinCode}
+                  onChange={(e) => {
+                    setJoinCode(e.target.value.toUpperCase());
+                    if (error) setError("");
+                  }}
+                  maxLength={5}
+                  className="h-8 border-white/20 bg-white bg-white/10 px-2 text-center font-mono text-lg tracking-wider placeholder:text-white/50 focus:border-white"
+                />
+              </div>
 
-              <Button
-                onClick={handleRoomJoin}
-                disabled={isJoining || !joinCode.trim()}
-                className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-50">
-                {isJoining ? "Joining..." : "Join Room"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="space-y-3">
+                <Button
+                  onClick={handleRoomCreate}
+                  disabled={isCreating}
+                  variant="outline"
+                  className="w-full border-white/20 hover:bg-white/10 hover:text-white/70">
+                  {isCreating ? "Creating Room" : "Create Room"}
+                </Button>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-white/60">server might take 10-15 seconds to spin up</p>
+                <Button
+                  onClick={handleRoomJoin}
+                  disabled={isJoining || !joinCode.trim()}
+                  className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-50">
+                  {isJoining ? "Joining..." : "Join Room"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-white/60">server might take 10-15 seconds to spin up</p>
+          </div>
         </div>
       </div>
     </div>

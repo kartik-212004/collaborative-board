@@ -3,6 +3,8 @@ import React from "react";
 
 import { Pencil } from "lucide-react";
 
+import Logo from "./home/logo";
+
 export default function Footer() {
   return (
     <footer className="bg-background border-t border-white/10 px-4 py-8 text-white sm:py-12">
@@ -10,9 +12,9 @@ export default function Footer() {
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-center space-x-2 sm:justify-start">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-              <Pencil className="h-4 w-4 text-black" />
+              <Logo />
             </div>
-            <span className="text-xl font-bold">WhiteBoard</span>
+            <span className="text-xl font-bold">CollabDraw</span>
           </div>
           <p className="mx-auto max-w-xs text-center text-sm text-white/70 sm:mx-0 sm:text-left sm:text-base">
             The fastest collaborative whiteboard for modern teams.

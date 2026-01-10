@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 
 import { useAuth } from "@/hooks/use-auth";
 
+import Logo from "./home/logo";
+
 export default function Header() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
 
@@ -22,9 +24,9 @@ export default function Header() {
       <div className="container mx-auto flex items-center justify-between px-4 py-2">
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-            <Pencil className="h-4 w-4 text-black" />
+            <Logo />
           </div>
-          <span className="text-xl font-bold text-white">WhiteBoard</span>
+          <span className="text-xl font-bold text-white">CollabDraw</span>
         </Link>
 
         <div className="flex items-center space-x-3">
