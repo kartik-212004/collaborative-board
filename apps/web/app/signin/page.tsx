@@ -143,7 +143,7 @@ export default function SignInPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  inputClassName="auth-input"
                   required
                   disabled={isLoading}
                 />
@@ -163,7 +163,7 @@ export default function SignInPage() {
                     onChange={handleInputChange}
                     unstyled
                     className="w-full"
-                    inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 pr-12 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                    inputClassName="auth-input pr-12"
                     required
                     disabled={isLoading}
                   />

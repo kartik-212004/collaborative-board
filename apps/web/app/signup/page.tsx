@@ -145,7 +145,7 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  inputClassName="auth-input"
                   required
                 />
               </div>
@@ -163,7 +163,7 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  inputClassName="auth-input"
                   required
                 />
               </div>
@@ -182,7 +182,7 @@ export default function SignUpPage() {
                     onChange={handleInputChange}
                     unstyled
                     className="w-full"
-                    inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 pr-12 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                    inputClassName="auth-input pr-12"
                     required
                     minLength={6}
                   />
@@ -213,7 +213,7 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="h-10 w-full rounded-md border border-black/10 bg-white px-3 text-black shadow-sm placeholder:text-neutral-500 focus:border-black/30 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  inputClassName="auth-input"
                 />
                 {formData.photo && (
                   <div className="mt-2 flex justify-center">

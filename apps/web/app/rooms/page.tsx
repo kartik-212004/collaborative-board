@@ -232,7 +232,9 @@ export default function RoomsPage() {
                     if (error) setError("");
                   }}
                   maxLength={5}
-                  className="h-8 border-white/20 bg-white bg-white/10 px-2 text-center font-mono text-lg tracking-wider placeholder:text-white/50 focus:border-white"
+                  unstyled
+                  className="w-full"
+                  inputClassName="auth-input text-center font-mono text-lg tracking-wider"
                 />
               </div>
 
