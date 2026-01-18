@@ -9,9 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "@prisma/engines"],
-  },
 };
 
 export default nextConfig;

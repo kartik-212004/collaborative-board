@@ -1,7 +1,7 @@
 services:
   database:
-    container_name: quickpost-db
-    image: postgres:13
+    container_name: CollabDraw
+    image: postgres:16
     environment:
       POSTGRES_USER: user
       POSTGRES_DB: db
