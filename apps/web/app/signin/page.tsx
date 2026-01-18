@@ -50,7 +50,7 @@ export default function SignInPage() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_HTTP_BACKEND_URL}/signin`, {
+      const response = await axios.post(`/api/signin`, {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });

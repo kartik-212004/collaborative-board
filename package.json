@@ -5,7 +5,6 @@
     "build": "turbo run build",
     "build:packages": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
     "dev": "turbo run dev",
-    "dev:http": "cd apps/http-backend && pnpm run dev",
     "dev:ws": "cd apps/ws-backend && pnpm run dev",
     "dev:web": "pnpm build:packages && cd apps/web && pnpm run dev",
     "lint": "turbo run lint",
