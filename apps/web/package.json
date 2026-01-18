@@ -7,6 +7,7 @@
     "dev": "next dev",
     "dev:standalone": "pnpm build:deps && next dev",
     "build:deps": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
+    "postinstall": "prisma generate --schema=../../packages/prisma/prisma/schema.prisma",
     "lint": "next lint",
     "start": "next start"
   },
