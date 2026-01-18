@@ -24,5 +24,5 @@ const parsedEnv = {
   NODE_ENV: parsed.data.NODE_ENV!,
   WEBSOCKET_PORT: parseInt(parsed.data.WEBSOCKET_PORT!),
 };
-
+console.log(parsedEnv);
 export const { SECRET_KEY, DATABASE_URL, NODE_ENV, WEBSOCKET_PORT, NEXT_PUBLIC_WS_URL } = parsedEnv;

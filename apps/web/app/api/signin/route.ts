@@ -34,7 +34,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = jwt.sign({ email: user.email, id: user.id, name: user.name }, process.env.SECRET_KEY!);
+    const token = jwt.sign(
+      { email: user.email, id: user.id, name: user.name },
+      process.env.SECRET_KEY as string
+    );
 
     return NextResponse.json(
       {
