@@ -1,11 +1,19 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "SECRET_KEY",
+    "DATABASE_URL",
+    "HTTP_PORT",
+    "WEBSOCKET_PORT",
+    "NODE_ENV",
+    "NEXT_PUBLIC_WS_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
