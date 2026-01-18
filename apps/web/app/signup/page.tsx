@@ -60,7 +60,7 @@ export default function SignUpPage() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_HTTP_BACKEND_URL}/signup`, {
+      const response = await axios.post(`/api/signup`, {
         name: formData.name.trim(),
         password: formData.password,
         photo: formData.photo.trim() || undefined,

@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// Use Next.js API routes instead of external backend
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_HTTP_BACKEND_URL,
+  baseURL: "/api",
 });
 
 // Request interceptor to add auth token

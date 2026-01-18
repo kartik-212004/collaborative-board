@@ -3,35 +3,13 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+// This route pings the WebSocket server to keep it alive on Render
+// The HTTP backend is now integrated into Next.js API routes
 export async function GET() {
   const results = {
     timestamp: new Date().toISOString(),
-    backend: { status: "pending", message: "" },
     websocket: { status: "pending", message: "" },
   };
-
-  try {
-    const backendUrl = process.env.NEXT_PUBLIC_HTTP_BACKEND_URL;
-    if (!backendUrl) {
-      results.backend = { status: "error", message: "Backend URL not configured" };
-    } else {
-      const response = await fetch(`${backendUrl}/health`, {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      if (response.ok) {
-        results.backend = { status: "ok", message: "Backend is alive" };
-      } else {
-        results.backend = { status: "error", message: `Backend returned ${response.status}` };
-      }
-    }
-  } catch (error) {
-    results.backend = {
-      status: "error",
-      message: error instanceof Error ? error.message : "Failed to ping backend",
-    };
-  }
 
   try {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
@@ -83,13 +61,11 @@ export async function GET() {
     };
   }
 
-  const allOk = results.backend.status === "ok" && results.websocket.status === "ok";
-
   return NextResponse.json(
     {
-      success: allOk,
+      success: results.websocket.status === "ok",
       ...results,
     },
-    { status: allOk ? 200 : 503 }
+    { status: results.websocket.status === "ok" ? 200 : 503 }
   );
 }
