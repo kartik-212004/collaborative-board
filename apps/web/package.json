@@ -8,7 +8,8 @@
     "dev:standalone": "pnpm build:deps && next dev",
     "build:deps": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -74,6 +75,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",
+    "prisma": "^6.12.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
