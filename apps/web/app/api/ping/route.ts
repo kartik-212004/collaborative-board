@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { NEXT_PUBLIC_WS_URL } from "@repo/env";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// This route pings the WebSocket server to keep it alive on Render
-// The HTTP backend is now integrated into Next.js API routes
 export async function GET() {
   const results = {
     timestamp: new Date().toISOString(),
@@ -12,7 +12,7 @@ export async function GET() {
   };
 
   try {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    const wsUrl = NEXT_PUBLIC_WS_URL;
     if (!wsUrl) {
       results.websocket = { status: "error", message: "WebSocket URL not configured" };
     } else {

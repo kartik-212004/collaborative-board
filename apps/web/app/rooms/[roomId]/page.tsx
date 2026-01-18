@@ -25,6 +25,7 @@ import {
 
 export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params);
+  const { user } = useAuth();
   const socketRef = useRef<WebSocket | null>(null);
   const showChatRef = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -37,7 +38,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
   const [showChat, setShowChat] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const { isAuthenticated, user, isLoading } = useAuth();
 
   const {
     canvasState,
@@ -50,8 +50,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     setPan,
     setStrokeColor,
     setStrokeWidth,
-    setFillColor,
-    setOpacity,
     undo,
     redo,
     canUndo,
@@ -59,7 +57,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     addShape,
     updateShape,
     deleteShape,
-    deleteSelectedShapes,
     updateSelectedShapes,
     clearCanvas,
     setShapes,

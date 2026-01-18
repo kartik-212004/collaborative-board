@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { SECRET_KEY } from "@repo/env";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface AuthUser {
@@ -17,7 +18,7 @@ export function verifyAuth(request: NextRequest): AuthUser | NextResponse {
       return NextResponse.json({ message: "No token found" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.SECRET_KEY!) as JwtPayload;
+    const decoded = jwt.verify(token, SECRET_KEY!) as JwtPayload;
 
     return {
       id: decoded.id,

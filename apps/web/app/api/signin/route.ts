@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { SECRET_KEY } from "@repo/env";
 import { prisma } from "@repo/prisma/client";
 import jwt from "jsonwebtoken";
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = jwt.sign({ email: user.email, id: user.id, name: user.name }, process.env.SECRET_KEY!);
+    const token = jwt.sign({ email: user.email, id: user.id, name: user.name }, SECRET_KEY!);
 
     return NextResponse.json(
       {

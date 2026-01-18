@@ -37,7 +37,7 @@ export default function RoomsPage() {
       wsRef.current.close();
     }
 
-    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}?token=${token}`;
+    const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080"}?token=${token}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {

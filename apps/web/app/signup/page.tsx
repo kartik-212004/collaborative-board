@@ -29,7 +29,7 @@ export default function SignUpPage() {
   });
 
   useEffect(() => {
-    const wsUrl = `ws://localhost:${process.env.NEXT_PUBLIC_WEBSOCKET_PORT || 8080}`;
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => ws.close();
   }, []);

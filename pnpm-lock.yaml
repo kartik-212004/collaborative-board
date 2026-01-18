@@ -332,6 +332,9 @@ importers:
       '@prisma/client':
         specifier: ^7.2.0
         version: 7.2.0(prisma@7.2.0(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3))(typescript@5.8.3)
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../env
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
