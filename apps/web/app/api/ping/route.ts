@@ -6,6 +6,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
+  console.log(`[CRON] Ping started at ${new Date().toISOString()}`);
+
   const results = {
     timestamp: new Date().toISOString(),
     websocket: { status: "pending", message: "" },
@@ -60,6 +62,8 @@ export async function GET() {
       message: error instanceof Error ? error.message : "Failed to ping WebSocket",
     };
   }
+
+  console.log(`[CRON] Ping completed: ${results.websocket.status} - ${results.websocket.message}`);
 
   return NextResponse.json(
     {

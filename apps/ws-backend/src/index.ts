@@ -49,6 +49,15 @@ server.listen(WEBSOCKET_PORT, () => {
   console.log(`   Health check available at http://localhost:${WEBSOCKET_PORT}/health`);
 });
 
+const SELF_PING_INTERVAL = 10 * 60 * 1000;
+
+setInterval(() => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] Self-ping: Server is alive with ${Object.keys(rooms).length} active rooms`);
+}, SELF_PING_INTERVAL);
+
+console.log(`🔄 Self-ping enabled every ${SELF_PING_INTERVAL / 60000} minutes to prevent hibernation`);
+
 interface MessageType {
   name: string;
   photo?: string;
