@@ -49,7 +49,7 @@ server.listen(WEBSOCKET_PORT, () => {
   console.log(`   Health check available at http://localhost:${WEBSOCKET_PORT}/health`);
 });
 
-const SELF_PING_INTERVAL = 10 * 60 * 1000;
+const SELF_PING_INTERVAL = 4 * 60 * 1000; // (minute , second,milisedond)
 
 const pingServer = async () => {
   const timestamp = new Date().toISOString();
