@@ -51,12 +51,40 @@ server.listen(WEBSOCKET_PORT, () => {
 
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
 
-setInterval(() => {
+const pingServer = async () => {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] Self-ping: Server is alive with ${Object.keys(rooms).length} active rooms`);
-}, SELF_PING_INTERVAL);
+  try {
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    let healthUrl: string;
 
-console.log(`🔄 Self-ping enabled every ${SELF_PING_INTERVAL / 60000} minutes to prevent hibernation`);
+    if (wsUrl) {
+      healthUrl = wsUrl.replace("wss://", "https://").replace("ws://", "http://");
+      healthUrl = healthUrl.endsWith("/") ? `${healthUrl}health` : `${healthUrl}/health`;
+    } else {
+      healthUrl = `http://localhost:${WEBSOCKET_PORT}/health`;
+    }
+
+    const response = await fetch(healthUrl);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(
+        `[${timestamp}] Self-ping successful: ${data.activeRooms || 0} active rooms, ${data.activeConnections || 0} connections`
+      );
+    } else {
+      console.log(`[${timestamp}] Self-ping responded with status ${response.status}`);
+    }
+  } catch (error) {
+    console.log(
+      `[${timestamp}] Self-ping (local): Server is alive with ${Object.keys(rooms).length} active rooms`
+    );
+  }
+};
+
+setTimeout(pingServer, 30000);
+
+setInterval(pingServer, SELF_PING_INTERVAL);
+
+console.log(`🔄 Self-ping enabled every ${SELF_PING_INTERVAL / 60000} minutes to prevent Render hibernation`);
 
 interface MessageType {
   name: string;

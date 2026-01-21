@@ -11,15 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { useAuth } from "@/hooks/use-auth";
-import { useWsKeepAlive } from "@/hooks/use-ws-keepalive";
 
 import { Navbar } from "@/modules/home";
 
 export default function RoomsPage() {
   const { isAuthenticated, isLoading, token } = useAuth();
   const router = useRouter();
-
-  useWsKeepAlive();
   const [joinCode, setJoinCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
