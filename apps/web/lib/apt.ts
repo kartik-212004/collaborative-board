@@ -1,11 +1,9 @@
 import axios from "axios";
 
-// Use Next.js API routes instead of external backend
 const api = axios.create({
   baseURL: "/api",
 });
 
-// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
@@ -21,7 +19,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

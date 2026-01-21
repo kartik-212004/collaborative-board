@@ -1,6 +1,3 @@
-// Custom auth utilities - authentication is handled via Next.js API routes
-// Token and user data are stored in localStorage and managed by useAuth hook
-
 export const AUTH_TOKEN_KEY = "authToken";
 export const USER_EMAIL_KEY = "userEmail";
 export const USER_NAME_KEY = "userName";

@@ -5,6 +5,7 @@ import React, { useEffect, useRef, use, useState, useCallback } from "react";
 import { PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Users, MessageCircle } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
+import { useWsKeepAlive } from "@/hooks/use-ws-keepalive";
 
 import {
   Toolbar,
@@ -26,6 +27,8 @@ import {
 export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params);
   const { user } = useAuth();
+
+  useWsKeepAlive();
   const socketRef = useRef<WebSocket | null>(null);
   const showChatRef = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -321,7 +324,6 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
   const sendChatMessage = useCallback(
     (message: string) => {
       if (socketRef.current?.readyState === WebSocket.OPEN) {
-        // Send to server - server will broadcast to all clients including us
         socketRef.current.send(
           JSON.stringify({
             name: user?.name || "Anonymous",

@@ -23,14 +23,12 @@ export function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-black/50 backdrop-blur-md">
       <div className="container mx-auto flex h-12 items-center justify-between px-6">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="bg-blue-600/20 p-1">
             <Logo />
           </div>
-          <span className="text-xl font-bold tracking-tight text-white">
-            CollabDraw<sup className="text-[10px] font-normal"></sup>
-          </span>
-        </div>
+          <span className="text-xl font-bold tracking-tight text-white">CollabDraw</span>
+        </Link>
         <nav className="hidden items-center gap-8 md:flex"></nav>
 
         <div className="flex items-center gap-4">
