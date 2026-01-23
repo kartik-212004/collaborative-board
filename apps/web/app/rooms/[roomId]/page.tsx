@@ -25,7 +25,7 @@ import {
 
 export default function DrawingRoom({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params);
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const socketRef = useRef<WebSocket | null>(null);
   const showChatRef = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -105,6 +105,10 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
     setStrokeWidth(strokeSize);
   }, [strokeSize, setStrokeWidth]);
   useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.error("No auth token found");
@@ -209,7 +213,17 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
         socketRef.current.close();
       }
     };
-  }, [roomId, user?.name, addShape, updateShape, deleteShape, clearCanvas, setShapes]);
+  }, [
+    roomId,
+    user?.name,
+    user?.photo,
+    isAuthLoading,
+    addShape,
+    updateShape,
+    deleteShape,
+    clearCanvas,
+    setShapes,
+  ]);
   const handleAddShape = useCallback(
     (shape: Shape) => {
       addShape(shape);
