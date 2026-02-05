@@ -4,28 +4,7 @@ A real-time collaborative whiteboard application built with Next.js, WebSockets,
 PostgreSQL, and HTML5 Canvas. Create rooms, invite collaborators, and draw
 together in real-time — like Excalidraw, but self-hostable.
 
-## ✨ Features
-
-- **Real-time Collaboration** — Draw together on an infinite canvas with live
-  shape synchronization
-- **Room System** — Create or join rooms via a 5-character invite code
-- **Rich Drawing Tools** — Rectangle, Diamond, Ellipse, Arrow, Line, Pencil
-  (freehand), and Text
-- **Shape Editing** — Select, move, resize, duplicate (Alt+drag), and delete
-  shapes
-- **Styling** — Stroke color (14 colors), stroke width, fill color, and opacity
-  controls
-- **In-room Chat** — Real-time chat sidebar with unread message badges
-- **Presence Awareness** — See who's online and whether they're actively drawing
-- **Undo / Redo** — Full history stack (up to 50 states) with Ctrl+Z /
-  Ctrl+Shift+Z
-- **Zoom & Pan** — Scroll to zoom (0.1x–5x), right-click drag to pan
-- **Export to PNG** — Download the canvas as an image
-- **Keyboard Shortcuts** — Full set of shortcuts for tools, actions, and
-  navigation
-- **Authentication** — JWT-based signup/signin flow
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
@@ -45,7 +24,7 @@ together in real-time — like Excalidraw, but self-hostable.
                         └──────────────────┘
 ```
 
-## 📁 Monorepo Structure
+## Monorepo Structure
 
 This project uses **Turborepo** + **pnpm workspaces** for monorepo management.
 
@@ -67,18 +46,7 @@ This project uses **Turborepo** + **pnpm workspaces** for monorepo management.
 | `@repo/eslint-config`     | Shared ESLint configurations              |
 | `@repo/ui`                | Shared UI components                      |
 
-## 🗄️ Database Schema
-
-The system uses **PostgreSQL** with **Prisma ORM**.
-
-| Model     | Key Fields                                                   | Description                  |
-| --------- | ------------------------------------------------------------ | ---------------------------- |
-| **User**  | `id` (UUID), `email` (unique), `password`, `name`, `photo`   | User accounts                |
-| **Room**  | `id` (UUID), `slug` (unique 5-char code), `adminId` → User   | Drawing rooms                |
-| **Chat**  | `id` (auto-int), `message`, `roomId` → Room, `userId` → User | Chat messages                |
-| **Shape** | `id` (string), `roomId` → Room, `shapeData` (JSON)           | Canvas shapes stored as JSON |
-
-## 🔌 API Endpoints
+## API Endpoints
 
 | Method | Route                   | Auth | Description                    |
 | ------ | ----------------------- | ---- | ------------------------------ |
@@ -89,24 +57,7 @@ The system uses **PostgreSQL** with **Prisma ORM**.
 | GET    | `/api/health`           | No   | Health check                   |
 | GET    | `/api/ping`             | No   | Ping WebSocket server status   |
 
-## 🔄 WebSocket Protocol
-
-The WebSocket server handles real-time collaboration with the following message
-types:
-
-| Message Type                    | Direction       | Description                          |
-| ------------------------------- | --------------- | ------------------------------------ |
-| `join`                          | Client → Server | Join a room (loads existing shapes)  |
-| `init`                          | Server → Client | Send all existing shapes + user list |
-| `draw`                          | Bidirectional   | New shape drawn (persisted to DB)    |
-| `update`                        | Bidirectional   | Shape modified (persisted to DB)     |
-| `delete`                        | Bidirectional   | Shape removed (deleted from DB)      |
-| `clear`                         | Bidirectional   | Clear all shapes in room             |
-| `drawing_start` / `drawing_end` | Client → Server | Presence: user is drawing / idle     |
-| `user_joined` / `user_left`     | Server → Client | Room presence updates                |
-| `chat`                          | Bidirectional   | Real-time chat message               |
-
-## 🎨 Drawing Tools & Shortcuts
+## Drawing Tools & Shortcuts
 
 | Key       | Tool              |
 | --------- | ----------------- |
@@ -124,7 +75,7 @@ types:
 **Actions:** `Ctrl+Z` Undo · `Ctrl+Shift+Z` Redo · `Ctrl+A` Select All ·
 `Delete` Remove · `Ctrl+/−` Zoom · `Ctrl+0` Reset Zoom · `Alt+Drag` Duplicate
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer            | Technology                                      |
 | ---------------- | ----------------------------------------------- |
@@ -139,7 +90,7 @@ types:
 | Validation       | Zod                                             |
 | Containerization | Docker + Docker Compose                         |
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -224,12 +175,3 @@ Use the provided `Makefile` for containerized deployment:
 | Frontend   | http://localhost:3000 |
 | WebSocket  | ws://localhost:8080   |
 | PostgreSQL | localhost:5432        |
-
-## 📜 Turbo Commands
-
-```bash
-pnpm dev            # Start all apps in development mode
-pnpm build          # Build all packages and apps
-pnpm lint           # Lint all packages
-pnpm check-types    # Type check all packages
-```
