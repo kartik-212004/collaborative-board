@@ -24,17 +24,20 @@ build-backend:
 	@echo "Building backend image..."
 	docker build --no-cache -f ./docker/ws.dockerfile -t backend .
 
+network:
+	@docker network inspect $(NETWORK_NAME) >/dev/null 2>&1 || docker network create $(NETWORK_NAME)
+
 run: network
 	@echo "Starting database..."
-	@docker compose up
+	@docker compose up -d
 	@echo "Waiting for database to be ready..."
 	@sleep 5
 	@echo "Running database migrations..."
 	@docker run --rm --network $(NETWORK_NAME) frontend pnpm --filter @repo/prisma db:push
 	@echo "Starting frontend container..."
-	@docker run -p 3000:3000 --name web --network $(NETWORK_NAME) frontend
+	@docker run -d -p 3000:3000 --env-file .env --name web --network $(NETWORK_NAME) frontend
 	@echo "Starting backend container..."
-	@docker run -p 8080:8080 --name ws --network $(NETWORK_NAME) backend
+	@docker run -d -p 8080:8080 --env-file .env --name ws --network $(NETWORK_NAME) backend
 	@echo "All services started!"
 	@echo "Frontend: http://localhost:3000"
 	@echo "Backend: http://localhost:8080"

@@ -20,4 +20,4 @@ volumes:
 networks:
   collabdraw-network:
     name: collabdraw-network
-    driver: bridge
+    external: true
