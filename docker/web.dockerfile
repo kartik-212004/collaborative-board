@@ -1,19 +1,22 @@
-FROM node:20-alpine
+# Dockerfile
+FROM node:alpine
 
-WORKDIR /app
+WORKDIR /collabdraw
 
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .env turbo.json ./
 
-COPY . .
+COPY packages ./packages
 
-RUN pnpm install
+COPY apps/web ./apps/web
 
-RUN pnpm --filter @repo/zod build
-RUN pnpm --filter @repo/env build
+RUN npm install -g pnpm \
+    && pnpm install
+
 RUN pnpm --filter @repo/prisma build
 
-RUN cd apps/web && pnpm build
+RUN pnpm build --filter web
+RUN pnpm build:packages
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "web", "start"]
+CMD ["pnpm", "dev", "--filter", "web"]

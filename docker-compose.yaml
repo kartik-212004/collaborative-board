@@ -11,6 +11,13 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: always
+    networks:
+      - collabdraw-network
 
 volumes:
   db_data:
+
+networks:
+  collabdraw-network:
+    name: collabdraw-network
+    driver: bridge

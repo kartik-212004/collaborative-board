@@ -1,19 +1,18 @@
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /collabdraw
 
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json .env .
 
-COPY . .
+COPY packages ./packages
 
-RUN pnpm install
+COPY apps/ws-backend ./apps/ws-backend
 
-RUN pnpm --filter @repo/zod build
-RUN pnpm --filter @repo/env build
-RUN pnpm --filter @repo/prisma build
+RUN npm i -g pnpm && pnpm i
 
-RUN cd apps/ws-backend && pnpm build
+RUN pnpm build --filter ws-backend
+RUN pnpm build:packages
 
 EXPOSE 8080
 
-CMD ["node", "apps/ws-backend/dist/index.js"]
+CMD ["pnpm", "dev", "--filter", "ws-backend"]
