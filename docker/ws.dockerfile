@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /collabdraw
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json .env .
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json .
 
 COPY packages ./packages
 

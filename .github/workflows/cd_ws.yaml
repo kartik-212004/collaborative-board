@@ -1,14 +1,13 @@
-name: WebSocket Docker image build and deployment
+name: Backend
 
 on:
   push:
-    - branches: [main]
-  pull_request:
-    - branches: [main]
+    branches:
+      - main
 
 jobs:
   build-and-push:
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Code Checkout
