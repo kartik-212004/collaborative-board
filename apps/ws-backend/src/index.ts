@@ -1,8 +1,10 @@
-import { WEBSOCKET_PORT, SECRET_KEY } from "@repo/env";
 import { prisma } from "@repo/prisma/client";
 import http from "http";
 import jwt from "jsonwebtoken";
 import { WebSocket, WebSocketServer } from "ws";
+
+const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT ? parseInt(process.env.WEBSOCKET_PORT) : 8080;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const server = http.createServer((req, res) => {
   if (req.url === "/health" || req.url === "/") {
@@ -109,7 +111,7 @@ wss.on("connection", (ws: WebSocket, request) => {
   if (!token) return;
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token, SECRET_KEY!);
     if (!decoded) {
       ws.close();
       return;

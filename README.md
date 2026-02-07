@@ -37,14 +37,13 @@ This project uses **Turborepo** + **pnpm workspaces** for monorepo management.
 
 ### Shared Packages
 
-| Package                   | Description                               |
-| ------------------------- | ----------------------------------------- |
-| `@repo/prisma`            | Prisma client, schema, and migrations     |
-| `@repo/zod`               | Shared Zod validation schemas             |
-| `@repo/env`               | Environment variable loading & validation |
-| `@repo/typescript-config` | Shared TypeScript configurations          |
-| `@repo/eslint-config`     | Shared ESLint configurations              |
-| `@repo/ui`                | Shared UI components                      |
+| Package                   | Description                           |
+| ------------------------- | ------------------------------------- |
+| `@repo/prisma`            | Prisma client, schema, and migrations |
+| `@repo/zod`               | Shared Zod validation schemas         |
+| `@repo/typescript-config` | Shared TypeScript configurations      |
+| `@repo/eslint-config`     | Shared ESLint configurations          |
+| `@repo/ui`                | Shared UI components                  |
 
 ## API Endpoints
 

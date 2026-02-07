@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { SECRET_KEY } from "@repo/env";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
+const SECRET_KEY = process.env.SECRET_KEY;
 
 export interface AuthUser {
   id: string;

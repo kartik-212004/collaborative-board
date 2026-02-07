@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "build:packages": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
+    "build:packages": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build",
     "dev": "turbo run dev",
     "dev:ws": "cd apps/ws-backend && pnpm run dev",
     "dev:web": "pnpm build:packages && cd apps/web && pnpm run dev",

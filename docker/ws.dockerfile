@@ -10,8 +10,8 @@ COPY apps/ws-backend ./apps/ws-backend
 
 RUN npm i -g pnpm && pnpm i
 
-RUN pnpm build --filter ws-backend
 RUN pnpm build:packages
+RUN pnpm build --filter ws-backend
 
 EXPOSE 8080
 

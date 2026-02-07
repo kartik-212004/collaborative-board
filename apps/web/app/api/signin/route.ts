@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { SECRET_KEY } from "@repo/env";
 import { prisma } from "@repo/prisma/client";
 import jwt from "jsonwebtoken";
+
+const SECRET_KEY = process.env.SECRET_KEY;
 
 export async function POST(request: NextRequest) {
   try {

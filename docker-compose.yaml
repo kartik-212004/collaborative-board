@@ -14,10 +14,28 @@ services:
     networks:
       - collabdraw-network
 
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/web.dockerfile
+    container_name: frontend
+    ports: [3000:3000]
+    env_file: .env
+    depends_on: [database]
+    networks: [collabdraw-network]
+
+  ws:
+    build:
+      context: .
+      dockerfile: ./docker/ws.dockerfile
+    container_name: server
+    ports: [8080:8080]
+    env_file: .env
+    depends_on: [database]
+    networks: [collabdraw-network]
+
 volumes:
   db_data:
 
 networks:
   collabdraw-network:
-    name: collabdraw-network
-    external: true

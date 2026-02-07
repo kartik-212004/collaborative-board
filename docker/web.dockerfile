@@ -12,10 +12,8 @@ COPY apps/web ./apps/web
 RUN npm install -g pnpm \
     && pnpm install
 
-RUN pnpm --filter @repo/prisma build
-
-RUN pnpm build --filter web
-RUN pnpm build:packages
+RUN  pnpm build:packages
+RUN pnpm --filter web build
 
 EXPOSE 3000
 

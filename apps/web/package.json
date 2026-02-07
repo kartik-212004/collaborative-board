@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "dev:standalone": "pnpm build:deps && next dev",
-    "build:deps": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build && pnpm --filter @repo/env build",
+    "build:deps": "pnpm --filter @repo/zod build && pnpm --filter @repo/prisma build",
     "lint": "next lint",
     "start": "next start"
   },
@@ -66,7 +66,6 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "@repo/env": "workspace:*",
     "@repo/prisma": "workspace:*",
     "@repo/zod": "workspace:*",
     "@types/jsonwebtoken": "^9.0.9",
