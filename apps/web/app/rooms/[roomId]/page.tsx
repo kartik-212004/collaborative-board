@@ -441,29 +441,29 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
 
       {showControls && (
         <div className="pointer-events-none absolute left-4 top-20 z-10">
-          <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="bg-canvas-toolbar border-canvas-border text-canvas-foreground pointer-events-auto w-56 rounded-xl border shadow-xl">
+            <div className="border-canvas-border flex items-center justify-between border-b px-4 py-3">
               <span className="text-sm font-semibold">Controls</span>
             </div>
             <div className="space-y-4 px-4 py-3 text-sm">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-white/90">Stroke</span>
-                  <span className="text-xs text-white/50">{strokeSize}px</span>
+                  <span className="text-canvas-foreground/90 font-medium">Stroke</span>
+                  <span className="text-canvas-muted-foreground text-xs">{strokeSize}px</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="h-8 w-8 rounded-lg border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10"
+                    className="border-canvas-border bg-canvas-muted text-canvas-foreground hover:bg-canvas-hover h-8 w-8 rounded-lg border text-sm font-semibold"
                     onClick={() => setStrokeSize((s) => Math.max(1, s - 1))}>
                     –
                   </button>
-                  <div className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-center text-xs text-white/70">
+                  <div className="border-canvas-border bg-canvas-muted text-canvas-muted-foreground flex-1 rounded-lg border px-3 py-1.5 text-center text-xs">
                     {strokeSize}px
                   </div>
                   <button
                     type="button"
-                    className="h-8 w-8 rounded-lg border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10"
+                    className="border-canvas-border bg-canvas-muted text-canvas-foreground hover:bg-canvas-hover h-8 w-8 rounded-lg border text-sm font-semibold"
                     onClick={() => setStrokeSize((s) => Math.min(24, s + 1))}>
                     +
                   </button>
@@ -471,7 +471,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-white/90">Color</span>
+                  <span className="text-canvas-foreground/90 font-medium">Color</span>
                 </div>
                 <div className="grid grid-cols-7 gap-1.5">
                   {STROKE_COLORS.map((color) => (
@@ -486,8 +486,8 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                       }}
                       className={`h-6 w-6 rounded-md border-2 transition-all ${
                         canvasState.strokeColor === color
-                          ? "scale-110 border-white"
-                          : "border-transparent hover:border-white/50"
+                          ? "border-canvas-foreground scale-110"
+                          : "hover:border-canvas-foreground/50 border-transparent"
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -496,7 +496,7 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-white/90">Text Size</span>
+                  <span className="text-canvas-foreground/90 font-medium">Text Size</span>
                 </div>
                 <div className="flex gap-1">
                   {(["xs", "md", "lg", "xxl"] as const).map((size) => (
@@ -506,8 +506,8 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                       onClick={() => setTextSize(size)}
                       className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium uppercase transition-all ${
                         textSize === size
-                          ? "border-white bg-white text-black"
-                          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                          ? "border-canvas-foreground bg-canvas-foreground text-canvas-toolbar"
+                          : "border-canvas-border bg-canvas-muted text-canvas-muted-foreground hover:bg-canvas-hover"
                       }`}>
                       {size}
                     </button>
@@ -541,20 +541,24 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
 
       {showPresence && (
         <div className="pointer-events-none absolute right-4 top-20 z-10">
-          <div className="bg-background pointer-events-auto w-56 rounded-xl border border-white/10 text-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="bg-canvas-toolbar border-canvas-border text-canvas-foreground pointer-events-auto w-56 rounded-xl border shadow-xl">
+            <div className="border-canvas-border flex items-center justify-between border-b px-4 py-3">
               <span className="text-sm font-semibold">People</span>
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white/10 px-1.5 text-xs font-medium">
+              <span className="bg-canvas-muted flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium">
                 {connectedUsers.length}
               </span>
             </div>
             <div className="max-h-64 overflow-y-auto px-2 py-2">
               {connectedUsers.length === 0 ? (
-                <div className="px-2 py-3 text-center text-xs text-white/50">No one else is here yet</div>
+                <div className="text-canvas-muted-foreground px-2 py-3 text-center text-xs">
+                  No one else is here yet
+                </div>
               ) : (
                 <div className="space-y-1">
                   {connectedUsers.map((u) => (
-                    <div key={u.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/5">
+                    <div
+                      key={u.id}
+                      className="hover:bg-canvas-hover flex items-center gap-3 rounded-lg px-2 py-2">
                       {u.photo ? (
                         <img
                           src={u.photo}
@@ -567,15 +571,15 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                         />
                       ) : null}
                       <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full bg-neutral-600 text-xs font-semibold text-white ${u.photo ? "hidden" : ""}`}>
+                        className={`text-canvas-foreground flex h-8 w-8 items-center justify-center rounded-full bg-neutral-600 text-xs font-semibold ${u.photo ? "hidden" : ""}`}>
                         {u.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-medium text-white/90">
+                          <span className="text-canvas-foreground/90 truncate text-sm font-medium">
                             {u.name}
                             {currentUser?.id === u.id && (
-                              <span className="ml-1 text-xs text-white/50">(you)</span>
+                              <span className="text-canvas-muted-foreground ml-1 text-xs">(you)</span>
                             )}
                           </span>
                         </div>
@@ -587,8 +591,8 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                             </>
                           ) : (
                             <>
-                              <span className="h-1.5 w-1.5 rounded-full bg-white/30" />
-                              <span className="text-white/50">Idle</span>
+                              <span className="bg-canvas-muted-foreground/50 h-1.5 w-1.5 rounded-full" />
+                              <span className="text-canvas-muted-foreground">Idle</span>
                             </>
                           )}
                         </div>
@@ -598,10 +602,12 @@ export default function DrawingRoom({ params }: { params: Promise<{ roomId: stri
                 </div>
               )}
             </div>
-            <div className="border-t border-white/10 px-4 py-2">
+            <div className="border-canvas-border border-t px-4 py-2">
               <div className="flex items-center gap-2 text-xs">
                 <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-400" : "bg-rose-400"}`} />
-                <span className="text-white/60">{isConnected ? "Connected" : "Disconnected"}</span>
+                <span className="text-canvas-muted-foreground">
+                  {isConnected ? "Connected" : "Disconnected"}
+                </span>
               </div>
             </div>
           </div>

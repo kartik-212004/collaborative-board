@@ -9,16 +9,18 @@ import { Button } from "@/components/ui/button";
 
 export function Features() {
   return (
-    <section className="bg-white py-24 text-slate-900">
+    <section className="bg-white py-24 text-slate-900 dark:bg-gray-950 dark:text-gray-100">
       <div className="container mx-auto px-6">
         <div className="mb-20 grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded bg-slate-100 px-3 py-1">
+            <div className="mb-6 inline-flex items-center gap-2 rounded bg-slate-100 px-3 py-1 dark:bg-gray-800">
               <span className="h-2 w-2 rounded-full bg-blue-600"></span>
-              <span className="text-sm font-medium text-slate-600">Collaborative Whiteboard</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-gray-400">
+                Collaborative Whiteboard
+              </span>
             </div>
 
-            <h2 className="mb-6 text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">
+            <h2 className="mb-6 text-4xl font-bold leading-tight text-slate-900 lg:text-5xl dark:text-gray-100">
               Visual management <br />
               for your team to create.
             </h2>
@@ -30,8 +32,8 @@ export function Features() {
                 "Built-in live chat for teammates to communicate while drawing",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <Check className="mt-1 h-5 w-5 shrink-0 text-slate-900" />
-                  <p className="text-lg text-slate-600">{item}</p>
+                  <Check className="mt-1 h-5 w-5 shrink-0 text-slate-900 dark:text-gray-100" />
+                  <p className="text-lg text-slate-600 dark:text-gray-400">{item}</p>
                 </div>
               ))}
             </div>
@@ -49,7 +51,7 @@ export function Features() {
           />
         </div>
 
-        <div className="grid gap-8 border-t border-slate-200 pt-16 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 border-t border-slate-200 pt-16 md:grid-cols-2 lg:grid-cols-4 dark:border-gray-800">
           {[
             {
               icon: Grip,
@@ -72,12 +74,14 @@ export function Features() {
               desc: "Pencil, shapes (circle, square), eraser, selection and more for precise editing.",
             },
           ].map((feature, i) => (
-            <div key={i} className="border-l-2 border-slate-100 pl-6 transition-colors hover:border-blue-500">
+            <div
+              key={i}
+              className="border-l-2 border-slate-100 pl-6 transition-colors hover:border-blue-500 dark:border-gray-800">
               <div className="mb-4 flex items-center gap-2">
-                <feature.icon className="h-5 w-5 text-slate-900" />
-                <h3 className="font-bold text-slate-900">{feature.title}</h3>
+                <feature.icon className="h-5 w-5 text-slate-900 dark:text-gray-100" />
+                <h3 className="font-bold text-slate-900 dark:text-gray-100">{feature.title}</h3>
               </div>
-              <p className="text-sm leading-relaxed text-slate-600">{feature.desc}</p>
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-400">{feature.desc}</p>
             </div>
           ))}
         </div>

@@ -95,45 +95,47 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-4 py-10 text-white">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50 px-4 py-10 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <div
-        className="absolute inset-0 z-0 opacity-20"
+        className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.06]"
         style={{
-          backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(#999 1px, transparent 1px), linear-gradient(90deg, #999 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}></div>
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50 dark:via-gray-950/50 dark:to-gray-950"></div>
 
       <div className="relative z-10 w-full max-w-lg space-y-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-white/80">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black">
+          className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">
             <Logo />
           </span>
           CollabDraw
         </Link>
 
-        <Card className="border-white/10 bg-white/5 backdrop-blur">
+        <Card className="border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <CardHeader className="space-y-1 text-left">
-            <CardTitle className="text-2xl font-semibold text-white">Create your account</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              Create your account
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             {error && (
-              <div className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-200">
+              <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-600 dark:border-green-800 dark:bg-green-950 dark:text-green-400">
                 {success}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-white/90">
+                <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">
                   Full Name
                 </Label>
                 <Input
@@ -145,13 +147,13 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="auth-input"
+                  inputClassName="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/90">
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">
                   Email
                 </Label>
                 <Input
@@ -163,13 +165,13 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="auth-input"
+                  inputClassName="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white/90">
+                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">
                   Password
                 </Label>
                 <div className="relative">
@@ -182,7 +184,7 @@ export default function SignUpPage() {
                     onChange={handleInputChange}
                     unstyled
                     className="w-full"
-                    inputClassName="auth-input pr-12"
+                    inputClassName="h-10 w-full rounded-md border border-gray-300 bg-white px-3 pr-12 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
                     required
                     minLength={6}
                   />
@@ -190,18 +192,18 @@ export default function SignUpPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-1 top-1/2 h-8 -translate-y-1/2 px-2 text-black/60 hover:bg-black/5"
+                    className="absolute right-1 top-1/2 h-8 -translate-y-1/2 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
                     onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
                 {formData.password && formData.password.length < 6 && (
-                  <p className="text-xs text-red-300">Password must be at least 6 characters long</p>
+                  <p className="text-xs text-red-500">Password must be at least 6 characters long</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="photo" className="text-white/90">
+                <Label htmlFor="photo" className="text-gray-700 dark:text-gray-300">
                   Profile Photo URL (Optional)
                 </Label>
                 <Input
@@ -213,14 +215,14 @@ export default function SignUpPage() {
                   onChange={handleInputChange}
                   unstyled
                   className="w-full"
-                  inputClassName="auth-input"
+                  inputClassName="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
                 />
                 {formData.photo && (
                   <div className="mt-2 flex justify-center">
                     <img
                       src={formData.photo}
                       alt="Profile preview"
-                      className="h-14 w-14 rounded-full border border-white/20 object-cover"
+                      className="h-14 w-14 rounded-full border border-gray-200 object-cover dark:border-gray-700"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
@@ -234,23 +236,25 @@ export default function SignUpPage() {
 
               <Button
                 type="submit"
-                className="w-full rounded-md bg-white text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-md bg-gray-900 text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
                 size="lg"
                 disabled={isLoading}>
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
-            <div className="flex items-center justify-between text-sm text-white/70">
+            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
               <span>Already have an account?</span>
-              <Link href="/signin" className="font-medium text-white hover:text-white/80">
+              <Link
+                href="/signin"
+                className="font-medium text-gray-900 hover:text-gray-700 dark:text-gray-100 dark:hover:text-gray-300">
                 Sign in
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-white/50">
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500">
           By continuing you agree to our Terms and Privacy Policy.
         </p>
       </div>

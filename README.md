@@ -6,23 +6,7 @@ together in real-time — like Excalidraw, but self-hostable.
 
 ## Architecture
 
-```
-┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
-│              │  HTTP  │                  │       │              │
-│   Browser    │◄──────►│   Next.js App    │◄─────►│  PostgreSQL  │
-│              │        │  (API + Frontend)│       │              │
-│              │   WS   │                  │       └──────────────┘
-│              │◄──────►│                  │              ▲
-└──────────────┘        └──────────────────┘              │
-                               │                         │
-                               │ WS                      │
-                               ▼                         │
-                        ┌──────────────────┐             │
-                        │   WS Backend     │─────────────┘
-                        │  (WebSocket      │   Prisma ORM
-                        │   Server)        │
-                        └──────────────────┘
-```
+![Collabdraw](./apps/web/public/collabdraw.png)
 
 ## Monorepo Structure
 

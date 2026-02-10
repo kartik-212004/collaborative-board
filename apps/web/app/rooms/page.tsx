@@ -175,15 +175,15 @@ export default function RoomsPage() {
 
   if (isLoading) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-950">
         <div
-          className="absolute inset-0 z-0 opacity-20"
+          className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.06]"
           style={{
-            backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(#999 1px, transparent 1px), linear-gradient(90deg, #999 1px, transparent 1px)`,
             backgroundSize: "40px 40px",
           }}></div>
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
-        <div className="relative z-10 text-white">Loading...</div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50 dark:via-gray-950/50 dark:to-gray-950"></div>
+        <div className="relative z-10 text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -193,33 +193,33 @@ export default function RoomsPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div className="relative min-h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
       <div
-        className="absolute inset-0 z-0 opacity-20"
+        className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.06]"
         style={{
-          backgroundImage: `linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(#999 1px, transparent 1px), linear-gradient(90deg, #999 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}></div>
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50 dark:via-gray-950/50 dark:to-gray-950"></div>
 
       <div className="relative z-10">
         <Navbar />
         <div className="container mx-auto max-w-md pb-10 pt-24">
           <div className="mb-8 text-center">
-            <h1 className="mb-2 text-3xl font-bold text-white">Room</h1>
-            <p className="text-white/70">Create a new room or join an existing one</p>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">Room</h1>
+            <p className="text-gray-500 dark:text-gray-400">Create a new room or join an existing one</p>
           </div>
 
           {error && (
-            <div className="mb-6 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-center text-sm text-red-400">
+            <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-3 text-center text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
               {error}
             </div>
           )}
 
-          <Card className="border-white/20 bg-white/5">
+          <Card className="border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
-                <Label htmlFor="roomCode" className="pb-2 text-sm text-white">
+                <Label htmlFor="roomCode" className="pb-2 text-sm text-gray-700 dark:text-gray-300">
                   Room Code
                 </Label>
                 <Input
@@ -234,7 +234,7 @@ export default function RoomsPage() {
                   maxLength={5}
                   unstyled
                   className="w-full"
-                  inputClassName="auth-input text-center font-mono text-lg tracking-wider"
+                  inputClassName="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-center font-mono text-lg tracking-wider text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
                 />
               </div>
 
@@ -243,14 +243,14 @@ export default function RoomsPage() {
                   onClick={handleRoomCreate}
                   disabled={isCreating}
                   variant="outline"
-                  className="w-full border-white/20 hover:bg-white/10 hover:text-white/70">
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
                   {isCreating ? "Creating Room" : "Create Room"}
                 </Button>
 
                 <Button
                   onClick={handleRoomJoin}
                   disabled={isJoining || !joinCode.trim()}
-                  className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-50">
+                  className="w-full bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200">
                   {isJoining ? "Joining..." : "Join Room"}
                 </Button>
               </div>
@@ -258,7 +258,9 @@ export default function RoomsPage() {
           </Card>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-white/60">server might take 10-15 seconds to spin up</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">
+              server might take 10-15 seconds to spin up
+            </p>
           </div>
         </div>
       </div>

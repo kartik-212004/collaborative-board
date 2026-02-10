@@ -14,6 +14,62 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 220 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 10%;
+    --primary: 220 10% 10%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 5% 96%;
+    --secondary-foreground: 220 10% 10%;
+    --muted: 220 5% 96%;
+    --muted-foreground: 220 5% 45%;
+    --accent: 220 5% 96%;
+    --accent-foreground: 220 10% 10%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 5% 90%;
+    --input: 220 5% 90%;
+    --ring: 220 10% 10%;
+    --chart-1: 220 10% 10%;
+    --chart-2: 220 8% 30%;
+    --chart-3: 220 6% 50%;
+    --chart-4: 220 4% 70%;
+    --chart-5: 220 2% 85%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 10% 10%;
+    --sidebar-primary: 220 10% 10%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 5% 96%;
+    --sidebar-accent-foreground: 220 10% 10%;
+    --sidebar-border: 220 5% 90%;
+    --sidebar-ring: 220 10% 10%;
+    --info: var(--color-blue-500);
+    --info-foreground: var(--color-blue-400);
+    --success: var(--color-emerald-500);
+    --success-foreground: var(--color-emerald-400);
+    --warning: var(--color-amber-500);
+    --warning-foreground: var(--color-amber-400);
+
+    /* Canvas theme */
+    --canvas-background: 0 0% 7%;
+    --canvas-foreground: 0 0% 95%;
+    --canvas-toolbar: 220 10% 12%;
+    --canvas-border: 220 8% 25%;
+    --canvas-hover: 220 8% 18%;
+    --canvas-active: 0 0% 95%;
+    --canvas-active-foreground: 220 10% 12%;
+    --canvas-muted: 220 10% 12%;
+    --canvas-muted-foreground: 220 8% 60%;
+    --canvas-accent: 0 0% 95%;
+    --canvas-primary: 0 0% 95%;
+    --canvas-primary-foreground: 220 10% 12%;
+  }
+
+  .dark {
     --background: 220 10% 12%;
     --foreground: 0 0% 95%;
     --card: 220 10% 12%;
@@ -38,7 +94,6 @@
     --chart-3: 0 0% 65%;
     --chart-4: 0 0% 50%;
     --chart-5: 0 0% 35%;
-    --radius: 0.5rem;
     --sidebar-background: 220 10% 12%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 0 0% 95%;
@@ -47,26 +102,6 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 220 8% 25%;
     --sidebar-ring: 0 0% 95%;
-    --info: var(--color-blue-500);
-    --info-foreground: var(--color-blue-400);
-    --success: var(--color-emerald-500);
-    --success-foreground: var(--color-emerald-400);
-    --warning: var(--color-amber-500);
-    --warning-foreground: var(--color-amber-400);
-
-    /* Canvas theme */
-    --canvas-background: 0 0% 7%;
-    --canvas-foreground: 0 0% 95%;
-    --canvas-toolbar: 220 10% 12%;
-    --canvas-border: 220 8% 25%;
-    --canvas-hover: 220 8% 18%;
-    --canvas-active: 0 0% 95%;
-    --canvas-active-foreground: 220 10% 12%;
-    --canvas-muted: 220 10% 12%;
-    --canvas-muted-foreground: 220 8% 60%;
-    --canvas-accent: 0 0% 95%;
-    --canvas-primary: 0 0% 95%;
-    --canvas-primary-foreground: 220 10% 12%;
   }
 }
 
@@ -75,6 +110,9 @@
     @apply border-border;
   }
   html {
+    color-scheme: light;
+  }
+  html.dark {
     color-scheme: dark;
   }
   body {

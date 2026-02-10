@@ -2,14 +2,16 @@
 
 import React from "react";
 
-import { Navbar, Hero, FooterBar, Features } from "@/modules/home";
+import Footer from "@/modules/Footer";
+import { Navbar, Hero, Features } from "@/modules/home";
 
 export default function Page() {
   return (
-    <main className="text-foreground min-h-screen bg-black font-sans selection:bg-blue-500/30">
+    <main className="min-h-screen bg-white font-sans text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <Navbar />
       <Hero />
       <Features />
+      <Footer />
     </main>
   );
 }

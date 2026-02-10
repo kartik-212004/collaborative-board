@@ -67,20 +67,20 @@ export function ChatSidebar({
   }
 
   return (
-    <div className="bg-background flex w-56 flex-col rounded-xl border border-white/10 text-white shadow-xl">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+    <div className="bg-canvas-toolbar border-canvas-border text-canvas-foreground flex w-56 flex-col rounded-xl border shadow-xl">
+      <div className="border-canvas-border flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <MessageCircle className="h-4 w-4" />
           <span className="text-sm font-semibold">Chat</span>
         </div>
-        <button onClick={onClose} className="rounded p-1 transition-colors hover:bg-white/10">
+        <button onClick={onClose} className="hover:bg-canvas-hover rounded p-1 transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
 
       <div className="flex max-h-64 min-h-48 flex-col overflow-y-auto px-2 py-2">
         {messages.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center px-2 py-3 text-center text-xs text-white/50">
+          <div className="text-canvas-muted-foreground flex flex-1 items-center justify-center px-2 py-3 text-center text-xs">
             No messages yet. Start the conversation!
           </div>
         ) : (
@@ -102,16 +102,18 @@ export function ChatSidebar({
                           {msg.userName.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span className="text-xs text-white/50">{msg.userName}</span>
+                      <span className="text-canvas-muted-foreground text-xs">{msg.userName}</span>
                     </div>
                   )}
                   <div
                     className={`max-w-[90%] rounded-lg px-3 py-1.5 text-sm ${
-                      isOwn ? "bg-blue-600 text-white" : "bg-white/10 text-white/90"
+                      isOwn ? "bg-blue-600 text-white" : "bg-canvas-hover text-canvas-foreground/90"
                     }`}>
                     {msg.message}
                   </div>
-                  <span className="px-1 text-[10px] text-white/30">{formatTime(msg.timestamp)}</span>
+                  <span className="text-canvas-muted-foreground px-1 text-[10px]">
+                    {formatTime(msg.timestamp)}
+                  </span>
                 </div>
               );
             })}
@@ -120,7 +122,7 @@ export function ChatSidebar({
         )}
       </div>
 
-      <div className="border-t border-white/10 p-2">
+      <div className="border-canvas-border border-t p-2">
         <div className="flex items-center gap-2">
           <input
             ref={inputRef}
@@ -130,7 +132,7 @@ export function ChatSidebar({
             onKeyDown={handleKeyDown}
             placeholder={isConnected ? "Type a message..." : "Disconnected"}
             disabled={!isConnected}
-            className="w-[80%] flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm placeholder:text-white/30 focus:border-white/20 focus:outline-none disabled:opacity-50"
+            className="border-canvas-border bg-canvas-muted text-canvas-foreground placeholder:text-canvas-muted-foreground focus:border-canvas-foreground/20 w-[80%] flex-1 rounded-lg border px-3 py-1.5 text-sm focus:outline-none disabled:opacity-50"
           />
           <button
             onClick={handleSend}
