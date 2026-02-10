@@ -2,7 +2,6 @@
 
 import React from "react";
 
-import Footer from "@/modules/Footer";
 import { Navbar, Hero, Features } from "@/modules/home";
 
 export default function Page() {
@@ -11,7 +10,6 @@ export default function Page() {
       <Navbar />
       <Hero />
       <Features />
-      <Footer />
     </main>
   );
 }
